@@ -1,0 +1,9 @@
+# Jetbrain
+.idea
+cmake-build-*
+
+# manual build
+build
+
+# Visual Studio Code
+.vscode

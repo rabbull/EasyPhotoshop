@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.0)
+project(EasyPhotoShopGUI C)
+
+set(CMAKE_C_STANDARD 11)
+
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK REQUIRED gtk+-3.0)
+message(STATUS "GTK FOUND:")
+message(STATUS "  GTK include directories:   ${GTK_INCLUDE_DIRS}")
+message(STATUS "  GTK library directories:   ${GTK_LIBRARY_DIRS}")
+message(STATUS "  GTK libraries:             ${GTK_LIBRARIES}")
+
+include_directories(${GTK_INCLUDE_DIRS})
+link_directories(${GTK_LIBRARY_DIRS})
+
+add_library(EasyPhotoShopGUI dummy.c)
+target_link_libraries(EasyPhotoShopGUI ${GTK_LIBRARIES})
