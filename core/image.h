@@ -10,18 +10,24 @@
 
 G_BEGIN_DECLS
 
-#define CORE_TYPE_IMAGE core_size_get_type()
+#define CORE_TYPE_IMAGE core_image_get_type()
 
 G_DECLARE_DERIVABLE_TYPE(CoreImage, core_image, CORE, IMAGE, GObject)
 
 struct _CoreImageClass {
     GObjectClass parent_class;
 
+    void (*constructor) (CoreImage* self);
+
+    // Padding to allow new virtual functions without breaking ABI.
     gpointer padding[12];
 };
 
-gboolean core_image_get_size(CoreImage* self, CoreSize** size, GError **error);
-gboolean core_image_set_size(CoreImage* self, CoreSize* size, GError **error);
+CoreImage* core_image_new(void);
+
+gboolean core_image_get_size(CoreImage *self, CoreSize **size, GError **error);
+
+gboolean core_image_set_size(CoreImage *self, CoreSize *size, GError **error);
 
 G_END_DECLS
 
