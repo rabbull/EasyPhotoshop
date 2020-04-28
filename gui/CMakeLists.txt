@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(EasyPhotoShopGUI C)
+project(EasyPhotoshopGUI C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -13,5 +13,5 @@ message(STATUS "  GTK libraries:             ${GTK_LIBRARIES}")
 include_directories(${GTK_INCLUDE_DIRS})
 link_directories(${GTK_LIBRARY_DIRS})
 
-add_library(EasyPhotoShopGUI dummy.c)
-target_link_libraries(EasyPhotoShopGUI ${GTK_LIBRARIES})
+add_library(EasyPhotoshopGUI SHARED main.c)
+target_link_libraries(EasyPhotoshopGUI ${GTK_LIBRARIES})

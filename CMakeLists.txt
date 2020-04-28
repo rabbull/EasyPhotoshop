@@ -1,7 +1,7 @@
 # todo: Windows support
 
 cmake_minimum_required(VERSION 3.16)
-project(EasyPhotoShop C)
+project(EasyPhotoshop C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -31,5 +31,5 @@ message(STATUS "  GObj libraries:             ${GObj_LIBRARIES}")
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 link_directories(${GLib_LIBRARY_DIRS} ${GObj_LIBRARY_DIRS})
 
-add_executable(EasyPhotoShop main.c)
-target_link_libraries(EasyPhotoShop EasyPhotoShopCore EasyPhotoShopImageProcess EasyPhotoShopGUI ${GLib_LIBRARIES} ${GObj_LIBRARIES})
+add_executable(EasyPhotoshop main.c)
+target_link_libraries(EasyPhotoshop EasyPhotoshopCore EasyPhotoshopImageProcess EasyPhotoshopGUI ${GLib_LIBRARIES} ${GObj_LIBRARIES})

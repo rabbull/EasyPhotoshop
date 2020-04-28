@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(EasyPhotoShopImageProcess C)
+project(EasyPhotoshopImageProcess C)
 
 set(CMAKE_C_STANDARD 11)
 
@@ -18,6 +18,6 @@ message(STATUS "  GObj libraries:             ${GObj_LIBRARIES}")
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 link_directories(${GLib_LIBRARY_DIRS} ${GObj_LIBRARY_DIRS})
 
-add_library(EasyPhotoShopImageProcess dummy.c)
-target_link_libraries(EasyPhotoShopImageProcess ${GLib_LIBRARIES} ${GObj_LIBRARIES})
+add_library(EasyPhotoshopImageProcess dummy.c)
+target_link_libraries(EasyPhotoshopImageProcess ${GLib_LIBRARIES} ${GObj_LIBRARIES})
 
