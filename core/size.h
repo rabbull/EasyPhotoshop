@@ -15,14 +15,20 @@ G_DECLARE_FINAL_TYPE(CoreSize, core_size, CORE, SIZE, GObject)
 
 CoreSize *core_size_new(void);
 
+// clone
+gboolean core_size_copy(CoreSize *self, CoreSize **another, GError **error);
+
+// getters
 guint32 core_size_get_width(CoreSize *self, GError **error);
 
 guint32 core_size_get_height(CoreSize *self, GError **error);
 
+// setters
 gboolean core_size_set_width(CoreSize *self, guint32 width, GError **error);
 
 gboolean core_size_set_height(CoreSize *self, guint32 height, GError **error);
 
+// converters
 gboolean core_size_to_string(CoreSize *self, GString **string, GError **error);
 
 G_END_DECLS
