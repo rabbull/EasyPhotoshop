@@ -43,7 +43,7 @@ gboolean core_size_copy(CoreSize *self, CoreSize **another, GError **error) {
         return FALSE;
     }
     if (*another == NULL) {
-        *another = core_size_new();
+        *another = g_object_new(CORE_TYPE_SIZE, NULL);
     }
     (*another)->width = self->width;
     (*another)->height = self->height;
@@ -72,10 +72,8 @@ gboolean core_size_set_height(CoreSize *self, guint32 const height, GError **err
 
 // converters
 gboolean core_size_to_string(CoreSize *self, GString **string, GError **error) {
-    if (string == NULL) {
-        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Pointer to string is NULL.");
-        return FALSE;
-    }
+    g_return_val_if_fail(self != NULL, FALSE);
+    g_return_val_if_fail(string != NULL, FALSE);
     if (*string == NULL) {
         *string = g_string_new(0);
     }
