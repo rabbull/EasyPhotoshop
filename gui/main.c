@@ -2,6 +2,7 @@
 // Created by karl on 4/28/20.
 //
 
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include "main.h"
 
