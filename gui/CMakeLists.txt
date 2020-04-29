@@ -11,7 +11,6 @@ message(STATUS "  GTK library directories:   ${GTK_LIBRARY_DIRS}")
 message(STATUS "  GTK libraries:             ${GTK_LIBRARIES}")
 
 include_directories(${GTK_INCLUDE_DIRS})
-link_directories(${GTK_LIBRARY_DIRS})
 
-add_library(EasyPhotoshopGUI SHARED main.c)
+add_library(EasyPhotoshopGUI main.c)
 target_link_libraries(EasyPhotoshopGUI ${GTK_LIBRARIES})

@@ -16,8 +16,5 @@ message(STATUS "  GObj library directories:   ${GObj_LIBRARY_DIRS}")
 message(STATUS "  GObj libraries:             ${GObj_LIBRARIES}")
 
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
-link_directories(${GLib_LIBRARY_DIRS} ${GObj_LIBRARY_DIRS})
 
-add_library(EasyPhotoshopImageProcess dummy.c)
-target_link_libraries(EasyPhotoshopImageProcess ${GLib_LIBRARIES} ${GObj_LIBRARIES})
-
+add_library(EasyPhotoshopImageProcess SHARED dummy.c)
