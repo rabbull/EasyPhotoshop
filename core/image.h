@@ -17,17 +17,22 @@ G_DECLARE_DERIVABLE_TYPE(CoreImage, core_image, CORE, IMAGE, GObject)
 struct _CoreImageClass {
     GObjectClass parent_class;
 
-    void (*constructor) (CoreImage* self);
-
     // Padding to allow new virtual functions without breaking ABI.
     gpointer padding[12];
 };
 
-CoreImage* core_image_new(void);
+CoreImage *core_image_new(void);
 
-gboolean core_image_get_size(CoreImage *self, CoreSize **size, GError **error);
+CoreImage *core_image_new_with_data(guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data);
 
-gboolean core_image_set_size(CoreImage *self, CoreSize *size, GError **error);
+gboolean core_image_get_size(CoreImage *self, CoreSize **size);
+
+gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
+
+guint8 *core_image_get_data(CoreImage *self);
+
+gboolean
+core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data);
 
 G_END_DECLS
 

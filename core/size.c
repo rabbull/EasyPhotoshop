@@ -22,6 +22,17 @@ static void core_size_init(CoreSize *self) {
     self->width = self->height = 0;
 }
 
+CoreSize *core_size_new(void) {
+    return g_object_new(CORE_TYPE_SIZE, NULL);
+}
+
+CoreSize *core_size_new_with_value(guint32 width, guint32 height) {
+    CoreSize *size;
+    size = core_size_new();
+    size->width = width;
+    size->height = height;
+    return size;
+}
 
 // destructors
 static void core_size_dispose(GObject *obj) {
@@ -37,11 +48,9 @@ static void core_size_finalize(GObject *obj) {
 
 // public methods
 // copy
-gboolean core_size_copy(CoreSize *self, CoreSize **another, GError **error) {
-    if (another == NULL) {
-        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "another is NULL.");
-        return FALSE;
-    }
+gboolean core_size_copy(CoreSize *self, CoreSize **another) {
+    g_return_val_if_fail(self != NULL, FALSE);
+    g_return_val_if_fail(another != NULL, FALSE);
     if (*another == NULL) {
         *another = g_object_new(CORE_TYPE_SIZE, NULL);
     }
@@ -71,7 +80,7 @@ gboolean core_size_set_height(CoreSize *self, guint32 const height) {
 }
 
 // converters
-gboolean core_size_to_string(CoreSize *self, GString **string, GError **error) {
+gboolean core_size_to_string(CoreSize *self, GString **string) {
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(string != NULL, FALSE);
     if (*string == NULL) {
