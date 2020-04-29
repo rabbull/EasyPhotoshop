@@ -51,21 +51,21 @@ gboolean core_size_copy(CoreSize *self, CoreSize **another, GError **error) {
 }
 
 // getters
-guint32 core_size_get_width(CoreSize *self, GError **error) {
+guint32 core_size_get_width(CoreSize *self) {
     return self->width;
 }
 
-guint32 core_size_get_height(CoreSize *self, GError **error) {
+guint32 core_size_get_height(CoreSize *self) {
     return self->height;
 }
 
 // setters
-gboolean core_size_set_width(CoreSize *self, guint32 const width, GError **error) {
+gboolean core_size_set_width(CoreSize *self, guint32 const width) {
     self->width = width;
     return TRUE;
 }
 
-gboolean core_size_set_height(CoreSize *self, guint32 const height, GError **error) {
+gboolean core_size_set_height(CoreSize *self, guint32 const height) {
     self->height = height;
     return TRUE;
 }
