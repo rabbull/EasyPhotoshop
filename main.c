@@ -17,10 +17,10 @@ int main(int argc, char **argv) {
             data[i * 5*8 + j] = i * j;
         }
     }
-    img = core_image_new();
     size = core_size_new_with_value(3, 5);
-    core_image_assign_data(img, data, 3*8*5*8, 8, size, TRUE);
+    img = core_image_new_with_data(data, 3*8*5*8, 8, size, TRUE);
     g_object_unref(size);
+    size = NULL;
 
     data_got = core_image_get_data(img);
     core_image_get_size(img, &size);
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
     printf("%s\n", str->str);
     for (i = 0; i < 3*8; ++i) {
         for (j = 0; j < 5*8; ++j) {
-            printf("%u, ", (guint32) data[i * 5*8 + j]);
+            printf("%u, ", (guint32) data_got[i * 5*8 + j]);
         }
         printf("\n");
     }
