@@ -73,14 +73,11 @@ static void core_image_finalize(GObject *obj) {
 }
 
 // public methods
-gboolean core_image_get_size(CoreImage *self, CoreSize **size) {
+CoreSize* core_image_get_size(CoreImage *self) {
     CoreImagePrivate *private = core_image_get_instance_private(self);
-    g_return_val_if_fail(self != NULL, FALSE);
-    g_return_val_if_fail(size != NULL, FALSE);
-    g_return_val_if_fail((*size) == NULL, FALSE);
+    g_return_val_if_fail(self != NULL, NULL);
 
-    *size = private->size;
-    return TRUE;
+    return g_object_ref(private->size);
 }
 
 guint8 core_image_get_bpp(CoreImage *self) {

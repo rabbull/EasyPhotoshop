@@ -17,10 +17,10 @@ GuiImageWidget* gui_image_widget_new_from_core_image(CoreImage* image) {
     gsize i, j, area;
     guint8 byte_per_pixel;
 
-    // increase reference
+    // claim resources
     image = g_object_ref(image);
 
-    core_image_get_size(image, &size);
+    size = core_image_get_size(image);
     pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, core_size_get_width(size), core_size_get_height(size));
     area = core_size_get_area(size);
     byte_per_pixel = core_image_get_byte_per_pixel(image);
@@ -34,9 +34,10 @@ GuiImageWidget* gui_image_widget_new_from_core_image(CoreImage* image) {
     image_widget = g_object_new(GUI_TYPE_IMAGE_WIDGET, NULL);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image_widget), pixbuf);
 
-    // decrease reference
+    // release resources
     g_object_unref(image);
     g_object_unref(pixbuf);
+    g_object_unref(size);
     return image_widget;
 }
 

@@ -13,13 +13,10 @@ int gui_main(int argc, char **argv) {
     GtkWidget *window;
     GuiImageWidget *gui_image_widget;
     CoreImage *image;
-    CoreSize *size = 0;
-    guint8 pix[3] = {255, 0, 0};
 
     gtk_init(&argc, &argv);
 
     image = core_image_new_lena();
-    core_image_get_size(image, &size);
     gui_image_widget = GUI_IMAGE_WIDGET(gui_image_widget_new_from_core_image(image));
     g_object_unref(image);
 
