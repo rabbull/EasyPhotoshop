@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     printf("%s\n", str->str);
     for (i = 0; i < core_size_get_area(size); ++i) {
         for (j = 0; j < (bpp >> 3u); ++j) {
-            printf("%d, ", core_image_get_data(img)[i * (bpp >> 3u) + j]);
+            printf("%d, ", (gint32) core_image_get_data(img)[i * (bpp >> 3u) + j]);
         }
     }
     printf("\n");
@@ -31,7 +31,7 @@ int main(int argc, char **argv) {
             printf("[");
             for (k = 0; k < core_image_get_byte_per_pixel(img); ++k) {
                 if (k != 0) printf(" ");
-                printf("%d", core_image_get_data(img)[(i * core_size_get_width(size) + j) * core_image_get_byte_per_pixel(img) + k]);
+                printf("%d", (gint32) core_image_get_pixel(img, j, i)[k]);
             }
             printf("], ");
         }
