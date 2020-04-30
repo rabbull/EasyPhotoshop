@@ -17,5 +17,5 @@ message(STATUS "  GObj libraries:             ${GObj_LIBRARIES}")
 
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 
-add_library(EasyPhotoshopCore image.c size.c)
+add_library(EasyPhotoshopCore image.c size.c lena.c)
 target_link_libraries(EasyPhotoshopCore ${GLib_LIBRARIES} ${GObj_LIBRARIES})
