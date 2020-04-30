@@ -37,6 +37,8 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
 
 guint8 *core_image_get_data(CoreImage *self);
 
+guint8 *core_image_get_pixel(CoreImage *self, guint32 x, guint32 y);
+
 gboolean
 core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data);
 

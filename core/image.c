@@ -152,3 +152,14 @@ core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp
 
     return TRUE;
 }
+
+guint8 *core_image_get_pixel(CoreImage *self, guint32 x, guint32 y) {
+    CoreImagePrivate *private;
+    g_return_val_if_fail(self != NULL, NULL);
+
+    private = core_image_get_instance_private(self);
+    g_return_val_if_fail(x < core_size_get_width(private->size), NULL);
+    g_return_val_if_fail(y < core_size_get_height(private->size), NULL);
+
+    return private->data + (y * core_size_get_width(private->size) + x) * core_image_get_byte_per_pixel(self);
+}
