@@ -27,9 +27,9 @@ guint32 core_size_get_height(CoreSize *self);
 guint32 core_size_get_area(CoreSize *self);
 
 // setters
-gboolean core_size_set_width(CoreSize *self, guint32 const width);
+gboolean core_size_set_width(CoreSize *self, guint32 width);
 
-gboolean core_size_set_height(CoreSize *self, guint32 const height);
+gboolean core_size_set_height(CoreSize *self, guint32 height);
 
 // converters
 gboolean core_size_to_string(CoreSize *self, GString **string);

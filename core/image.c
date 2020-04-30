@@ -100,12 +100,10 @@ guint8 core_image_get_byte_per_pixel(CoreImage *self) {
 gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
     CoreImagePrivate *private = NULL;
     GError *temp_error = NULL;
-    guint32 w, h, new_w, new_h;
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(size != NULL, FALSE);
 
     private = core_image_get_instance_private(self);
-
     if (core_size_get_area(private->size) == 0) {
         g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Empty image shall not be reshaped");
     }
@@ -117,7 +115,6 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
         g_propagate_error(error, temp_error);
         return FALSE;
     }
-
     return TRUE;
 }
 
@@ -132,8 +129,6 @@ gboolean
 core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data) {
     CoreImagePrivate *private = NULL;
     guint8 *_data = NULL;
-    gsize i;
-
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(data != NULL, FALSE);
     g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, FALSE);
