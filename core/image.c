@@ -44,12 +44,13 @@ CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 bpp, guint8 con
     g_return_val_if_fail(size != NULL, NULL);
     g_return_val_if_fail(pix != NULL, NULL);
     g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, NULL);
-
+    size = g_object_ref(size);
     img = core_image_new();
     private = core_image_get_instance_private(img);
     core_size_copy(size, &private->size);
+    g_object_unref(size);
     byte_per_pix = (bpp >> 3u);
-    n_pix = core_size_get_area(size);
+    n_pix = core_size_get_area(private->size);
     private->data = g_malloc(sizeof(guint8) * byte_per_pix * n_pix);
     for (i = 0; i < n_pix; ++i) {
         for (j = 0; j < byte_per_pix; ++j) {
@@ -100,18 +101,26 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(size != NULL, FALSE);
 
+    size = g_object_ref(size);
     private = core_image_get_instance_private(self);
     if (core_size_get_area(private->size) == 0) {
         g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Empty image shall not be reshaped");
+        g_object_unref(size);
+        return FALSE;
     }
     if (core_size_get_area(private->size) != core_size_get_area(size)) {
         g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Reshape operation does not modify area.");
+        g_object_unref(size);
+        return FALSE;
     }
 
     if (!core_size_copy(size, &private->size)) {
         g_propagate_error(error, temp_error);
+        g_object_unref(size);
         return FALSE;
     }
+
+    g_object_unref(size);
     return TRUE;
 }
 
@@ -129,19 +138,18 @@ core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(data != NULL, FALSE);
     g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, FALSE);
-
     private = core_image_get_instance_private(self);
+    size = g_object_ref(size);
+    core_size_copy(size, &private->size);
+    g_object_unref(size);
     if (!copy_data) {
         _data = data;
     } else {
         _data = g_malloc(sizeof(guint8) * data_len);
         memcpy(_data, data, data_len);
     }
-
     private->data = _data;
     private->bpp = bpp;
-    core_size_copy(size, &private->size);
-
     return TRUE;
 }
 
