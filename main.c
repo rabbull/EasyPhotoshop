@@ -7,28 +7,33 @@
 int main(int argc, char **argv) {
     CoreImage *img = 0;
     CoreSize *size = 0;
-    guint8 data[3*8*5*8] = {0};
-    guint8 *data_got;
+    guint8 pix[3] = {1, 2, 3};
+    guint8 bpp = 24;
     GString *str = 0;
-    gsize i, j;
+    gsize i, j, k;
 
-    for (i = 0; i < 3*8; ++i) {
-        for (j = 0; j < 5*8; ++j) {
-            data[i * 5*8 + j] = i * j;
-        }
-    }
-    size = core_size_new_with_value(3, 5);
-    img = core_image_new_with_data(data, 3*8*5*8, 8, size, TRUE);
+    size = core_size_new_with_value(5, 4);
+    img = core_image_new_fill_with_color(size, bpp, pix);
     g_object_unref(size);
     size = NULL;
 
-    data_got = core_image_get_data(img);
     core_image_get_size(img, &size);
     core_size_to_string(size, &str);
     printf("%s\n", str->str);
-    for (i = 0; i < 3*8; ++i) {
-        for (j = 0; j < 5*8; ++j) {
-            printf("%u, ", (guint32) data_got[i * 5*8 + j]);
+    for (i = 0; i < core_size_get_area(size); ++i) {
+        for (j = 0; j < (bpp >> 3u); ++j) {
+            printf("%d, ", core_image_get_data(img)[i * (bpp >> 3u) + j]);
+        }
+    }
+    printf("\n");
+    for (i = 0; i < core_size_get_height(size); ++i) {
+        for (j = 0; j < core_size_get_width(size); ++j) {
+            printf("[");
+            for (k = 0; k < core_image_get_byte_per_pixel(img); ++k) {
+                if (k != 0) printf(" ");
+                printf("%d", core_image_get_data(img)[(i * core_size_get_width(size) + j) * core_image_get_byte_per_pixel(img) + k]);
+            }
+            printf("], ");
         }
         printf("\n");
     }
