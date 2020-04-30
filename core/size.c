@@ -68,6 +68,11 @@ guint32 core_size_get_height(CoreSize *self) {
     return self->height;
 }
 
+guint32 core_size_get_area(CoreSize *self) {
+    return self->width * self->height;
+}
+
+
 // setters
 gboolean core_size_set_width(CoreSize *self, guint32 const width) {
     self->width = width;
