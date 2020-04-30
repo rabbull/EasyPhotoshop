@@ -25,7 +25,13 @@ CoreImage *core_image_new(void);
 
 CoreImage *core_image_new_with_data(guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data);
 
+CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 bpp, guint8 const* pix);
+
 gboolean core_image_get_size(CoreImage *self, CoreSize **size);
+
+guint8 core_image_get_bpp(CoreImage *self);
+
+guint8 core_image_get_byte_per_pixel(CoreImage *self);
 
 gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
 

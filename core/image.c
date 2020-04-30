@@ -36,6 +36,29 @@ CoreImage *core_image_new_with_data(guint8 *data, gsize data_len, guint8 bpp, Co
     return img;
 }
 
+CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 bpp, guint8 const *pix) {
+    CoreImage *img;
+    CoreImagePrivate *private;
+    gsize byte_per_pix, n_pix;
+    gsize i, j;
+    g_return_val_if_fail(size != NULL, NULL);
+    g_return_val_if_fail(pix != NULL, NULL);
+    g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, NULL);
+
+    img = core_image_new();
+    private = core_image_get_instance_private(img);
+    core_size_copy(size, &private->size);
+    byte_per_pix = (bpp >> 3u);
+    n_pix = core_size_get_area(size);
+    private->data = g_malloc(sizeof(guint8) * byte_per_pix * n_pix);
+    for (i = 0; i < n_pix; ++i) {
+        for (j = 0; j < byte_per_pix; ++j) {
+            private->data[i * byte_per_pix + j] = pix[j];
+        }
+    }
+    return img;
+}
+
 // destructor
 static void core_image_dispose(GObject *obj) {
     CoreImagePrivate *private = core_image_get_instance_private(CORE_IMAGE(obj));
@@ -60,6 +83,20 @@ gboolean core_image_get_size(CoreImage *self, CoreSize **size) {
     return TRUE;
 }
 
+guint8 core_image_get_bpp(CoreImage *self) {
+    CoreImagePrivate *private;
+    g_return_val_if_fail(self != NULL, 0);
+    private = core_image_get_instance_private(self);
+    return private->bpp;
+}
+
+guint8 core_image_get_byte_per_pixel(CoreImage *self) {
+    CoreImagePrivate *private;
+    g_return_val_if_fail(self != NULL, 0);
+    private = core_image_get_instance_private(self);
+    return private->bpp >> 3u;
+}
+
 gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
     CoreImagePrivate *private = NULL;
     GError *temp_error = NULL;
@@ -69,18 +106,11 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
 
     private = core_image_get_instance_private(self);
 
-    w = core_size_get_width(private->size);
-    h = core_size_get_height(private->size);
-    if (w == 0 && h == 0) {
-        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "empty image shall not be reshaped.");
-        return FALSE;
+    if (core_size_get_area(private->size) == 0) {
+        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Empty image shall not be reshaped");
     }
-
-    new_w = core_size_get_width(size);
-    new_h = core_size_get_height(size);
-    if (new_w * new_h != w * h) {
-        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "reshape do not modify area.");
-        return FALSE;
+    if (core_size_get_area(private->size) != core_size_get_area(size)) {
+        g_set_error(error, G_OPTION_ERROR, G_OPTION_ERROR_BAD_VALUE, "Reshape operation does not modify area.");
     }
 
     if (!core_size_copy(size, &private->size)) {
