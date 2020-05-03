@@ -6,7 +6,7 @@
 #define EASYPHOTOSHOP_IMAGE_H
 
 #include <glib-object.h>
-#include "size.h"
+#include <core/size.h>
 
 G_BEGIN_DECLS
 
@@ -21,14 +21,19 @@ struct _CoreImageClass {
     gpointer padding[12];
 };
 
+// constructors
 CoreImage *core_image_new(void);
 
-CoreImage *core_image_new_empty_with_size(CoreSize* size, guint8 bpp);
+CoreImage *core_image_new_empty_with_size(CoreSize* size, guint8 channel);
 
 CoreImage *core_image_new_with_data(gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data);
 
-CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 bpp, guint8 const *pix);
+CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 channel, gdouble const *pix);
 
+// clone
+gboolean core_image_copy(CoreImage *self, CoreImage **another);
+
+// other public methods
 CoreSize *core_image_get_size(CoreImage *self);
 
 guint8 core_image_get_channel(CoreImage *self);

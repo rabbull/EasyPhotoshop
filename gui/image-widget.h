@@ -7,7 +7,7 @@
 
 #include <glib-object.h>
 #include <gtk/gtk.h>
-#include "../core/image.h"
+#include <core/image.h>
 
 G_BEGIN_DECLS
 

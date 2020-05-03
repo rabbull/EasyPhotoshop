@@ -5,7 +5,7 @@
 #ifndef EASYPHOTOSHOP_LENA_H
 #define EASYPHOTOSHOP_LENA_H
 
-#include "image.h"
+#include <core/image.h>
 
 CoreImage* core_image_new_lena();
 

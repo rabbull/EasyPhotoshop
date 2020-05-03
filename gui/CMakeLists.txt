@@ -10,7 +10,9 @@ message(STATUS "  GTK include directories:   ${GTK_INCLUDE_DIRS}")
 message(STATUS "  GTK library directories:   ${GTK_LIBRARY_DIRS}")
 message(STATUS "  GTK libraries:             ${GTK_LIBRARIES}")
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 include_directories(${GTK_INCLUDE_DIRS})
 
 add_library(EasyPhotoshopGUI main.c image-widget.c)
-target_link_libraries(EasyPhotoshopGUI EasyPhotoshopCore ${GTK_LIBRARIES})
+target_link_libraries(EasyPhotoshopGUI EasyPhotoshopCore EasyPhotoshopImageProcess ${GTK_LIBRARIES})

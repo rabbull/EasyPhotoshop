@@ -2,7 +2,7 @@
 // Created by karl_ on 2020-4-30.
 //
 
-#include "lena.h"
+#include <core/lena.h>
 
 static gdouble lena_64_64_data[] = {
         226, 135, 121, 225, 133, 116, 223, 131, 108, 222, 128, 108, 226, 134, 112, 234, 148, 119, 235, 144, 116, 204,

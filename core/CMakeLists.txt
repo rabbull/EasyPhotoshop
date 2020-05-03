@@ -15,6 +15,8 @@ message(STATUS "  GObj include directories:   ${GObj_INCLUDE_DIRS}")
 message(STATUS "  GObj library directories:   ${GObj_LIBRARY_DIRS}")
 message(STATUS "  GObj libraries:             ${GObj_LIBRARIES}")
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 
 add_library(EasyPhotoshopCore image.c size.c lena.c)

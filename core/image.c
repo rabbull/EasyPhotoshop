@@ -2,7 +2,7 @@
 // Created by karl on 4/28/20.
 //
 
-#include "image.h"
+#include <core/image.h>
 
 typedef struct {
     gdouble *data;
@@ -27,7 +27,7 @@ CoreImage *core_image_new(void) {
     return g_object_new(CORE_TYPE_IMAGE, NULL);
 }
 
-CoreImage *core_image_new_empty_with_size(CoreSize* size, guint8 channel) {
+CoreImage *core_image_new_empty_with_size(CoreSize *size, guint8 channel) {
     CoreImage *img;
     CoreImagePrivate *private;
     size = g_object_ref(size);
@@ -47,7 +47,7 @@ CoreImage *core_image_new_with_data(gdouble *data, gsize data_len, guint8 channe
     return img;
 }
 
-CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 channel, guint8 const *pix) {
+CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 channel, gdouble const *pix) {
     CoreImage *img;
     CoreImagePrivate *private;
     gsize byte_per_pix, n_pix;
@@ -84,7 +84,34 @@ static void core_image_finalize(GObject *obj) {
 }
 
 // public methods
-CoreSize* core_image_get_size(CoreImage *self) {
+gboolean core_image_copy(CoreImage *self, CoreImage **another) {
+    CoreImagePrivate *self_private, *another_private;
+    g_return_val_if_fail(self != NULL, FALSE);
+    g_return_val_if_fail(another != NULL, FALSE);
+    self_private = core_image_get_instance_private(self);
+    if (*another == NULL) {
+        *another = core_image_new_with_data(
+                self_private->data,
+                core_size_get_area(self_private->size) * self_private->channel,
+                self_private->channel,
+                self_private->size,
+                TRUE
+        );
+    } else {
+        core_image_assign_data(
+                *another,
+                self_private->data,
+                core_size_get_area(self_private->size) * self_private->channel,
+                self_private->channel,
+                self_private->size,
+                TRUE
+        );
+    }
+    return TRUE;
+}
+
+
+CoreSize *core_image_get_size(CoreImage *self) {
     CoreImagePrivate *private = core_image_get_instance_private(self);
     g_return_val_if_fail(self != NULL, NULL);
 
@@ -142,7 +169,8 @@ gdouble *core_image_get_data(CoreImage *self) {
 }
 
 gboolean
-core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data) {
+core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 channel, CoreSize *size,
+                       gboolean copy_data) {
     CoreImagePrivate *private = NULL;
     gdouble *_data = NULL;
     g_return_val_if_fail(self != NULL, FALSE);
@@ -156,6 +184,9 @@ core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 ch
     } else {
         _data = g_malloc(sizeof(gdouble) * data_len);
         memcpy(_data, data, sizeof(gdouble) * data_len);
+    }
+    if (private->data) {
+        g_free(private->data);
     }
     private->data = _data;
     private->channel = channel;
