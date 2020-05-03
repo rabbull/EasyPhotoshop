@@ -5,8 +5,7 @@
 #include "image.h"
 
 typedef struct {
-    guint8 *data;
-    guint8 bpp;     // bits per pixel
+    gdouble *data;
     guint8 channel;
     CoreSize *size;
 } CoreImagePrivate;
@@ -20,7 +19,6 @@ static void core_image_class_init(CoreImageClass *klass) {
 static void core_image_init(CoreImage *self) {
     CoreImagePrivate *private = core_image_get_instance_private(self);
     private->data = NULL;
-    private->bpp = 24;
     private->channel = 3;
     private->size = g_object_new(CORE_TYPE_SIZE, NULL);
 }
@@ -29,27 +27,39 @@ CoreImage *core_image_new(void) {
     return g_object_new(CORE_TYPE_IMAGE, NULL);
 }
 
-CoreImage *core_image_new_with_data(guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data) {
+CoreImage *core_image_new_empty_with_size(CoreSize* size, guint8 channel) {
     CoreImage *img;
+    CoreImagePrivate *private;
+    size = g_object_ref(size);
     img = core_image_new();
-    core_image_assign_data(img, data, data_len, bpp, size, copy_data);
+    private = core_image_get_instance_private(img);
+    core_size_copy(size, &private->size);
+    private->channel = channel;
+    private->data = g_malloc(core_size_get_area(size) * core_image_get_byte_per_pixel(img));
+    g_object_unref(size);
     return img;
 }
 
-CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 bpp, guint8 const *pix) {
+CoreImage *core_image_new_with_data(gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data) {
+    CoreImage *img;
+    img = core_image_new();
+    core_image_assign_data(img, data, data_len, channel, size, copy_data);
+    return img;
+}
+
+CoreImage *core_image_new_fill_with_color(CoreSize *size, guint8 channel, guint8 const *pix) {
     CoreImage *img;
     CoreImagePrivate *private;
     gsize byte_per_pix, n_pix;
     gsize i, j;
     g_return_val_if_fail(size != NULL, NULL);
     g_return_val_if_fail(pix != NULL, NULL);
-    g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, NULL);
     size = g_object_ref(size);
     img = core_image_new();
     private = core_image_get_instance_private(img);
     core_size_copy(size, &private->size);
     g_object_unref(size);
-    byte_per_pix = (bpp >> 3u);
+    byte_per_pix = channel;
     n_pix = core_size_get_area(private->size);
     private->data = g_malloc(sizeof(guint8) * byte_per_pix * n_pix);
     for (i = 0; i < n_pix; ++i) {
@@ -81,18 +91,18 @@ CoreSize* core_image_get_size(CoreImage *self) {
     return g_object_ref(private->size);
 }
 
-guint8 core_image_get_bpp(CoreImage *self) {
+guint8 core_image_get_channel(CoreImage *self) {
     CoreImagePrivate *private;
     g_return_val_if_fail(self != NULL, 0);
     private = core_image_get_instance_private(self);
-    return private->bpp;
+    return private->channel;
 }
 
 guint8 core_image_get_byte_per_pixel(CoreImage *self) {
     CoreImagePrivate *private;
     g_return_val_if_fail(self != NULL, 0);
     private = core_image_get_instance_private(self);
-    return private->bpp >> 3u;
+    return private->channel * sizeof(gdouble);
 }
 
 gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
@@ -124,7 +134,7 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error) {
     return TRUE;
 }
 
-guint8 *core_image_get_data(CoreImage *self) {
+gdouble *core_image_get_data(CoreImage *self) {
     CoreImagePrivate *private = NULL;
     g_return_val_if_fail(self != NULL, NULL);
     private = core_image_get_instance_private(self);
@@ -132,12 +142,11 @@ guint8 *core_image_get_data(CoreImage *self) {
 }
 
 gboolean
-core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp, CoreSize *size, gboolean copy_data) {
+core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data) {
     CoreImagePrivate *private = NULL;
-    guint8 *_data = NULL;
+    gdouble *_data = NULL;
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(data != NULL, FALSE);
-    g_return_val_if_fail(bpp == 8 || bpp == 24 || bpp == 32, FALSE);
     private = core_image_get_instance_private(self);
     size = g_object_ref(size);
     core_size_copy(size, &private->size);
@@ -145,15 +154,15 @@ core_image_assign_data(CoreImage *self, guint8 *data, gsize data_len, guint8 bpp
     if (!copy_data) {
         _data = data;
     } else {
-        _data = g_malloc(sizeof(guint8) * data_len);
-        memcpy(_data, data, data_len);
+        _data = g_malloc(sizeof(gdouble) * data_len);
+        memcpy(_data, data, sizeof(gdouble) * data_len);
     }
     private->data = _data;
-    private->bpp = bpp;
+    private->channel = channel;
     return TRUE;
 }
 
-guint8 *core_image_get_pixel(CoreImage *self, guint32 x, guint32 y) {
+gdouble *core_image_get_pixel(CoreImage *self, guint32 x, guint32 y) {
     CoreImagePrivate *private;
     g_return_val_if_fail(self != NULL, NULL);
 
