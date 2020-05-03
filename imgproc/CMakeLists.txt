@@ -26,4 +26,4 @@ include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS} ${BLAS_INCLUDE_DIR
 link_directories(${GLib_LIBRARY_DIRS} ${GObj_LIBRARY_DIRS} ${BLAS_LIBRARY_DIRS})
 
 add_library(EasyPhotoshopImageProcess histogram-equalization.c histogram-equalization.h color-convert.c)
-target_link_libraries(EasyPhotoshopImageProcess ${GLib_LIBRARIES} ${GObj_LIBRARIES} ${BLAS_LIBRARIES})
+target_link_libraries(EasyPhotoshopImageProcess m ${GLib_LIBRARIES} ${GObj_LIBRARIES} ${BLAS_LIBRARIES})
