@@ -4,7 +4,7 @@
 
 #include <core/lena.h>
 
-static gdouble lena_64_64_data[] = {
+static guint8 lena_64_64_data[] = {
         226, 135, 121, 225, 133, 116, 223, 131, 108, 222, 128, 108, 226, 134, 112, 234, 148, 119, 235, 144, 116, 204,
         99, 100, 161, 62, 86, 171, 71, 88, 177, 74, 86, 178, 75, 86, 177, 75, 85, 186, 82, 88, 197, 90, 90, 203, 95, 91,
         205, 99, 97, 205, 100, 98, 204, 99, 95, 206, 100, 97, 208, 102, 98, 210, 102, 98, 209, 101, 97, 207, 102, 99,
@@ -528,7 +528,7 @@ CoreImage *core_image_new_lena() {
     static const guint8 height = 64;
 
     size = core_size_new_with_value(width, height);
-    img = core_image_new_with_data(lena_64_64_data, width * height * channel, channel, size, TRUE);
+    img = core_image_new_with_data(lena_64_64_data, CORE_COLOR_SPACE_RGB, CORE_PIXEL_U3, size, TRUE);
     g_object_unref(size);
     return img;
 }

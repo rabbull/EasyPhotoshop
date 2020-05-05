@@ -34,6 +34,13 @@ CoreSize *core_size_new_with_value(guint32 width, guint32 height) {
     return size;
 }
 
+CoreSize *core_size_new_clone(CoreSize* old) {
+    CoreSize* new;
+    new = core_size_new();
+    core_size_copy(old, new);
+    return new;
+}
+
 // destructors
 static void core_size_dispose(GObject *obj) {
     g_print("core size obj dispose.\n");
@@ -48,14 +55,11 @@ static void core_size_finalize(GObject *obj) {
 
 // public methods
 // copy
-gboolean core_size_copy(CoreSize *self, CoreSize **another) {
+gboolean core_size_copy(CoreSize *self, CoreSize *another) {
     g_return_val_if_fail(self != NULL, FALSE);
     g_return_val_if_fail(another != NULL, FALSE);
-    if (*another == NULL) {
-        *another = g_object_new(CORE_TYPE_SIZE, NULL);
-    }
-    (*another)->width = self->width;
-    (*another)->height = self->height;
+    another->width = self->width;
+    another->height = self->height;
     return TRUE;
 }
 

@@ -4,6 +4,21 @@
 
 #include <gui/image-widget.h>
 
+/* MACRO FUNCTIONS TO REDUCE REDUNDANCY, NOT A METHOD */
+#define __IMAGE_WIDGET_COPY_DATA_C1(i, j, type, src, dst, ratio)  \
+for (i = 0; i < area; ++i) {  \
+    for (j = 0; j < 3; ++j) {  \
+        ((guint8 *) dst)[i * 3 + j] = ((type *) src)[i] * ratio;  \
+    }  \
+}
+
+#define __IMAGE_WIDGET_COPY_DATA_C3(i, j, type, src, dst, ratio)  \
+for (i = 0; i < area; ++i) {  \
+    for (j = 0; j < 3; ++j) {  \
+        ((guint8 *) dst)[i * 3 + j] = ((type *) src)[i * 3 + j] * ratio;  \
+    }  \
+}
+
 G_DEFINE_TYPE(GuiImageWidget, gui_image_widget, GTK_TYPE_IMAGE)
 
 static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {}
@@ -16,29 +31,40 @@ GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
     GdkPixbuf *pixbuf;
     gsize i, j, area;
     guint8 channel;
+    gdouble range, mag_ratio;
+    CoreColorSpace color_space;
+    CorePixelType pixel_type;
+    gpointer src_data, dst_data;
+    g_return_val_if_fail(image != NULL, NULL);
+    g_return_val_if_fail(!core_image_empty(image), NULL);
 
-    // claim resources
     image = g_object_ref(image);
 
     size = core_image_get_size(image);
     pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, core_size_get_width(size), core_size_get_height(size));
     area = core_size_get_area(size);
     channel = core_image_get_channel(image);
-    if (channel == 3) {  // rgb
-        for (i = 0; i < area; ++i) {
-            for (j = 0; j < channel; ++j) {
-                // note: No information about how pixel data are stored in pixbuf instance provided.
-                // I guess it'll work and it does work for now.
-                gdk_pixbuf_get_pixels(pixbuf)[i * 3 + j] = core_image_get_data(image)[i * 3 + j];
-            }
+    color_space = core_image_get_color_space(image);
+    pixel_type = core_image_get_pixel_type(image);
+    range = core_pixel_get_range(pixel_type);
+    mag_ratio = 255.0 / range;
+    src_data = core_image_get_data(image);
+    dst_data = gdk_pixbuf_get_pixels(pixbuf);
+
+    if (color_space == CORE_COLOR_SPACE_RGB) {
+        if (core_pixel_is_uint8(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C3(i, j, guint8, src_data, dst_data, mag_ratio)
+        } else if (core_pixel_is_double(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C3(i, j, gdouble, src_data, dst_data, mag_ratio)
         }
-    } else if (channel == 1) {  // gray scale
-        for (i = 0; i < area; ++i) {
-            for (j = 0; j < 3; ++j) {
-                gdk_pixbuf_get_pixels(pixbuf)[i * 3 + j] = core_image_get_data(image)[i];
-            }
+    } else if (color_space == CORE_COLOR_SPACE_GRAY_SCALE || color_space == CORE_COLOR_SPACE_BIN) {
+        if (core_pixel_is_uint8(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C1(i, j, guint8, src_data, dst_data, mag_ratio)
+        } else if (core_pixel_is_double(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C1(i, j, gdouble, src_data, dst_data, mag_ratio)
         }
     }
+
     image_widget = g_object_new(GUI_TYPE_IMAGE_WIDGET, NULL);
     gtk_image_set_from_pixbuf(GTK_IMAGE(image_widget), pixbuf);
 

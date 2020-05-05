@@ -17,8 +17,10 @@ CoreSize *core_size_new(void);
 
 CoreSize *core_size_new_with_value(guint32 width, guint32 height);
 
+CoreSize *core_size_new_clone(CoreSize* old);
+
 // clone
-gboolean core_size_copy(CoreSize *self, CoreSize **another);
+gboolean core_size_copy(CoreSize *self, CoreSize *another);
 
 // getters
 guint32 core_size_get_width(CoreSize *self);
