@@ -12,6 +12,7 @@
 G_BEGIN_DECLS
 
 #define GUI_TYPE_IMAGE_WIDGET gui_image_widget_get_type()
+
 G_DECLARE_DERIVABLE_TYPE(GuiImageWidget, gui_image_widget, GUI, IMAGE_WIDGET, GtkImage)
 
 struct _GuiImageWidgetClass {
@@ -19,7 +20,7 @@ struct _GuiImageWidgetClass {
     gpointer padding[12];
 };
 
-GuiImageWidget* gui_image_widget_new_from_core_image(CoreImage* image);
+GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image);
 
 G_END_DECLS
 

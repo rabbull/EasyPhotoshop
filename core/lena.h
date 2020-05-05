@@ -7,6 +7,6 @@
 
 #include <core/image.h>
 
-CoreImage* core_image_new_lena();
+CoreImage *core_image_new_lena();
 
 #endif //EASYPHOTOSHOP_LENA_H

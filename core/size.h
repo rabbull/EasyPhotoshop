@@ -14,6 +14,7 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE(CoreSize, core_size, CORE, SIZE, GObject)
 
 CoreSize *core_size_new(void);
+
 CoreSize *core_size_new_with_value(guint32 width, guint32 height);
 
 // clone

@@ -9,7 +9,7 @@
 gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
     gsize i;
     CoreSize *size;
-    gdouble* dst_data, *src_data;
+    gdouble *dst_data, *src_data;
     gsize channel, area;
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
@@ -37,8 +37,8 @@ gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
 
 
 gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble threshold, gboolean inverse) {
-    CoreImage* gray_src = NULL;
-    CoreSize* size;
+    CoreImage *gray_src = NULL;
+    CoreSize *size;
     gsize i, area;
     gdouble *src_data, *dst_data;
     g_return_val_if_fail(src != NULL, FALSE);

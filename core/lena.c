@@ -520,9 +520,9 @@ static gdouble lena_64_64_data[] = {
         104, 116, 141, 73, 94, 102, 30, 61, 104, 31, 63, 146, 56, 74
 };
 
-CoreImage* core_image_new_lena() {
-    CoreImage* img = NULL;
-    CoreSize* size = NULL;
+CoreImage *core_image_new_lena() {
+    CoreImage *img = NULL;
+    CoreSize *size = NULL;
     static const guint8 channel = 3;
     static const guint8 width = 64;
     static const guint8 height = 64;

@@ -6,12 +6,12 @@
 
 G_DEFINE_TYPE(GuiImageWidget, gui_image_widget, GTK_TYPE_IMAGE)
 
-static void gui_image_widget_class_init (GuiImageWidgetClass *cls) {}
+static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {}
 
-static void gui_image_widget_init (GuiImageWidget *self) {}
+static void gui_image_widget_init(GuiImageWidget *self) {}
 
-GuiImageWidget* gui_image_widget_new_from_core_image(CoreImage* image) {
-    GuiImageWidget* image_widget = NULL;
+GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
+    GuiImageWidget *image_widget = NULL;
     CoreSize *size = 0;
     GdkPixbuf *pixbuf;
     gsize i, j, area;
@@ -49,10 +49,10 @@ GuiImageWidget* gui_image_widget_new_from_core_image(CoreImage* image) {
     return image_widget;
 }
 
-static void gui_image_widget_dispose (GObject *obj) {
-    G_OBJECT_CLASS (gui_image_widget_parent_class)->dispose (obj);
+static void gui_image_widget_dispose(GObject *obj) {
+    G_OBJECT_CLASS (gui_image_widget_parent_class)->dispose(obj);
 }
 
-static void gui_image_widget_finalize (GObject *obj) {
-    G_OBJECT_CLASS (gui_image_widget_parent_class)->finalize (obj);
+static void gui_image_widget_finalize(GObject *obj) {
+    G_OBJECT_CLASS (gui_image_widget_parent_class)->finalize(obj);
 }

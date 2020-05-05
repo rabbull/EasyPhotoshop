@@ -24,7 +24,7 @@ struct _CoreImageClass {
 // constructors
 CoreImage *core_image_new(void);
 
-CoreImage *core_image_new_empty_with_size(CoreSize* size, guint8 channel);
+CoreImage *core_image_new_empty_with_size(CoreSize *size, guint8 channel);
 
 CoreImage *core_image_new_with_data(gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data);
 
@@ -47,7 +47,8 @@ gdouble *core_image_get_data(CoreImage *self);
 gdouble *core_image_get_pixel(CoreImage *self, guint32 x, guint32 y);
 
 gboolean
-core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 channel, CoreSize *size, gboolean copy_data);
+core_image_assign_data(CoreImage *self, gdouble *data, gsize data_len, guint8 channel, CoreSize *size,
+                       gboolean copy_data);
 
 G_END_DECLS
 

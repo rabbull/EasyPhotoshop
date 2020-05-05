@@ -9,7 +9,7 @@
 
 
 // ref: https://www.math.uci.edu/icamp/courses/math77c/demos/hist_eq.pdf
-static void histeq(double const* src, double* dst, size_t area, unsigned int range) {
+static void histeq(double const *src, double *dst, size_t area, unsigned int range) {
     unsigned int *cdf;
     size_t i;
     cdf = calloc(range, sizeof(unsigned int));
@@ -29,7 +29,7 @@ static void histeq(double const* src, double* dst, size_t area, unsigned int ran
 gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage *dst) {
     gdouble *src_data = NULL;
     gdouble *dst_data = NULL;
-    CoreSize* size = NULL;
+    CoreSize *size = NULL;
     guint8 channel;
     gboolean in_place = FALSE;
     g_return_val_if_fail(src != NULL, FALSE);
