@@ -18,6 +18,7 @@ int gui_main(int argc, char **argv) {
 
     image = core_image_new_lena();
     imgproc_to_grayscale(image, &image);
+    imgproc_histogram_equalization(image, &image);
     gui_image_widget = GUI_IMAGE_WIDGET(gui_image_widget_new_from_core_image(image));
     g_object_unref(image);
 

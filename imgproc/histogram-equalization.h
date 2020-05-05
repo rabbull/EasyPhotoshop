@@ -8,6 +8,6 @@
 #include <glib-object.h>
 #include <core/image.h>
 
-gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage *dst);
+gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst);
 
 #endif //EASYPHOTOSHOP_HISTOGRAM_EQUALIZATION_H
