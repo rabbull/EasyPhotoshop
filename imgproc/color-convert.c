@@ -53,19 +53,25 @@ gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
 
     /* cast dst_data from double back to uchar if needed */
     if (core_pixel_is_uint8(pixel_type)) {
-        dst_data = g_malloc(area * sizeof(guint8));
         for (i = 0; i < area; ++i) {
-            ((guint8 *) dst_data)[i] = dst_data_cast[i];
+            ((guint8 *) dst_data_cast)[i] = dst_data_cast[i];
         }
-        g_free(dst_data_cast);
-    } else {
-        dst_data = dst_data_cast;
+    }
+    dst_data = dst_data_cast;
+    if (core_pixel_is_uint8(pixel_type)) {
+        dst_data = g_realloc(dst_data, sizeof(guint8) * area);
     }
 
+    /* assign result */
     if (*dst == NULL) {
         *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_GRAY_SCALE, pixel_type, size, FALSE);
     } else {
         core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_GRAY_SCALE, pixel_type, size, FALSE);
+    }
+
+    /* free additional allocated memory */
+    if (core_pixel_is_uint8(pixel_type)) {
+        g_free(src_data_cast);
     }
     g_object_unref(size);
     return TRUE;
