@@ -9,27 +9,63 @@
 gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
     gsize i;
     CoreSize *size;
-    gdouble *dst_data, *src_data;
+    gdouble *dst_data_cast, *src_data_cast;
+    gpointer src_data, dst_data;
     gsize channel, area;
+    CoreColorSpace color_space;
+    CorePixelType pixel_type;
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
 
     size = core_image_get_size(src);
     area = core_size_get_area(size);
-    dst_data = g_malloc0(area * sizeof(gdouble));
-    src_data = core_image_get_data(src);
+    color_space = core_image_get_color_space(src);
+    pixel_type = core_image_get_pixel_type(src);
     channel = core_image_get_channel(src);
-    cblas_dcopy(area, src_data, channel, dst_data, 1);
+    src_data = core_image_get_data(src);
+
+    if (core_pixel_is_uint8(pixel_type)) {
+        src_data_cast = g_malloc(area * sizeof(gdouble) * channel);
+        for (i = 0; i < area * channel; ++i) {
+            src_data_cast[i] = (gdouble) ((guint8 *) src_data)[i];
+        }
+    } else {
+        /* do not need to cast if pixel type is Dx */
+        src_data_cast = src_data;
+    }
+    dst_data_cast = g_malloc(area * sizeof(gdouble));
+
+    cblas_dcopy(area, src_data_cast, channel, dst_data_cast, 1);
     for (i = 1; i < channel; ++i) {
-        cblas_daxpy(area, 1.0, src_data + i, channel, dst_data, 1);
+        cblas_daxpy(area, 1.0, src_data_cast + i, channel, dst_data_cast, 1);
     }
     if (channel > 1) {
-        cblas_daxpy(area, 1.0 / channel - 1.0, dst_data, 1, dst_data, 1);
+        cblas_daxpy(area, 1.0 / channel - 1.0, dst_data_cast, 1, dst_data_cast, 1);
     }
-    if (*dst == NULL) {
-        *dst = core_image_new_with_data(dst_data, area, 1, size, FALSE);
+
+    if (core_pixel_is_uint8(pixel_type)) {
+        pixel_type = CORE_PIXEL_U1;
+    } else if (core_pixel_is_double(pixel_type)) {
+        pixel_type = CORE_PIXEL_D1;
     } else {
-        core_image_assign_data(*dst, dst_data, area, 1, size, FALSE);
+        g_return_val_if_fail(FALSE, FALSE);
+    }
+
+    /* cast dst_data from double back to uchar if needed */
+    if (core_pixel_is_uint8(pixel_type)) {
+        dst_data = g_malloc(area * sizeof(guint8));
+        for (i = 0; i < area; ++i) {
+            ((guint8 *) dst_data)[i] = dst_data_cast[i];
+        }
+        g_free(dst_data_cast);
+    } else {
+        dst_data = dst_data_cast;
+    }
+
+    if (*dst == NULL) {
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_GRAY_SCALE, pixel_type, size, FALSE);
+    } else {
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_GRAY_SCALE, pixel_type, size, FALSE);
     }
     g_object_unref(size);
     return TRUE;
@@ -41,6 +77,8 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
     CoreSize *size;
     gsize i, area;
     gdouble *src_data, *dst_data;
+    CoreColorSpace color_space;
+    CorePixelType pixel_type;
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
 
@@ -57,9 +95,9 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
         dst_data[i] = ((unsigned) (src_data[i] > threshold) ^ (unsigned) inverse) * 255.0;
     }
     if (*dst == NULL) {
-        core_image_new_with_data(dst_data, area, 1, size, FALSE);
+        core_image_new_with_data(dst_data, 1, CORE_PIXEL_D4, size, FALSE);
     } else {
-        core_image_assign_data(*dst, dst_data, area, 1, size, FALSE);
+        core_image_assign_data(*dst, dst_data, 1, CORE_PIXEL_D4, size, FALSE);
     }
     g_object_unref(size);
     g_object_unref(gray_src);
