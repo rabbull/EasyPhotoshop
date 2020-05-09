@@ -24,6 +24,8 @@ GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image);
 
 gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image);
 
+CoreImage* gui_image_widget_get_image(GuiImageWidget *self);
+
 G_END_DECLS
 
 #endif //EASYPHOTOSHOP_IMAGE_WIDGET_H

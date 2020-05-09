@@ -19,7 +19,11 @@ for (i = 0; i < area; ++i) {  \
     }  \
 }
 
-G_DEFINE_TYPE(GuiImageWidget, gui_image_widget, GTK_TYPE_IMAGE)
+typedef struct {
+    CoreImage* image;
+} GuiImageWidgetPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE(GuiImageWidget, gui_image_widget, GTK_TYPE_IMAGE)
 
 static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {}
 
@@ -50,8 +54,11 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     CoreColorSpace color_space;
     CorePixelType pixel_type;
     gpointer src_data, dst_data;
+    GuiImageWidgetPrivate *private;
 
-    image = g_object_ref(image);
+    private = gui_image_widget_get_instance_private(self);
+    g_object_unref(private->image);
+    private->image = g_object_ref(image);
 
     size = core_image_get_size(image);
     area = core_size_get_area(size);
@@ -81,8 +88,13 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
 
     gtk_image_set_from_pixbuf(GTK_IMAGE(self), pixbuf);
 
-    g_object_unref(image);
     g_object_unref(pixbuf);
     g_object_unref(size);
     return TRUE;
+}
+
+CoreImage *gui_image_widget_get_image(GuiImageWidget *self) {
+    GuiImageWidgetPrivate *private;
+    private = gui_image_widget_get_instance_private(self);
+    return g_object_ref(private->image);
 }
