@@ -16,18 +16,6 @@ typedef struct {
 G_DEFINE_TYPE_WITH_PRIVATE(CoreImage, core_image, G_TYPE_OBJECT)
 
 /* CONSTRUCTORS */
-static void core_image_class_init(CoreImageClass *klass) {
-}
-
-static void core_image_init(CoreImage *self) {
-    CoreImagePrivate *private = core_image_get_instance_private(self);
-    private->data = NULL;
-    private->color_space = CORE_COLOR_SPACE_RGB;
-    private->channel = 3;
-    private->pixel_type = CORE_PIXEL_U3;
-    private->size = core_size_new();
-}
-
 CoreImage *core_image_new(void) {
     return g_object_new(CORE_TYPE_IMAGE, NULL);
 }
@@ -104,6 +92,25 @@ static void core_image_finalize(GObject *obj) {
         private->data = NULL;
     }
     G_OBJECT_CLASS(core_image_parent_class)->finalize(obj);
+}
+
+/* INIT FUNCTIONS */
+
+/* CONSTRUCTORS */
+static void core_image_class_init(CoreImageClass *cls) {
+    GObjectClass *obj_cls = G_OBJECT_CLASS(cls);
+
+    obj_cls->dispose = core_image_dispose;
+    obj_cls->finalize = core_image_finalize;
+}
+
+static void core_image_init(CoreImage *self) {
+    CoreImagePrivate *private = core_image_get_instance_private(self);
+    private->data = NULL;
+    private->color_space = CORE_COLOR_SPACE_RGB;
+    private->channel = 3;
+    private->pixel_type = CORE_PIXEL_U3;
+    private->size = core_size_new();
 }
 
 /* PUBLIC METHODS */

@@ -20,23 +20,34 @@ for (i = 0; i < area; ++i) {  \
 }
 
 typedef struct {
-    CoreImage* image;
+    CoreImage *image;
 } GuiImageWidgetPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GuiImageWidget, gui_image_widget, GTK_TYPE_IMAGE)
 
-static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {}
-
-static void gui_image_widget_init(GuiImageWidget *self) {}
-
+/* DESTRUCTORS */
 static void gui_image_widget_dispose(GObject *obj) {
-    G_OBJECT_CLASS (gui_image_widget_parent_class)->dispose(obj);
+    GuiImageWidgetPrivate *private;
+    private = gui_image_widget_get_instance_private(GUI_IMAGE_WIDGET(obj));
+    g_clear_object(&private->image);
+    G_OBJECT_CLASS(gui_image_widget_parent_class)->dispose(obj);
 }
 
 static void gui_image_widget_finalize(GObject *obj) {
-    G_OBJECT_CLASS (gui_image_widget_parent_class)->finalize(obj);
+    G_OBJECT_CLASS(gui_image_widget_parent_class)->finalize(obj);
 }
 
+/* INIT FUNCTIONS */
+static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {
+    GObjectClass *obj_cls = G_OBJECT_CLASS(cls);
+
+    obj_cls->dispose = gui_image_widget_dispose;
+    obj_cls->finalize = gui_image_widget_finalize;
+}
+
+static void gui_image_widget_init(GuiImageWidget *self) {}
+
+/* CONSTRUCTORS */
 GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
     GuiImageWidget *image_widget = NULL;
     g_return_val_if_fail(image != NULL, NULL);
@@ -46,6 +57,7 @@ GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
     return image_widget;
 }
 
+/* PUBLIC METHODS */
 gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     CoreSize *size;
     GdkPixbuf *pixbuf;
@@ -57,7 +69,7 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     GuiImageWidgetPrivate *private;
 
     private = gui_image_widget_get_instance_private(self);
-    g_object_unref(private->image);
+    g_clear_object(&private->image);
     private->image = g_object_ref(image);
 
     size = core_image_get_size(image);

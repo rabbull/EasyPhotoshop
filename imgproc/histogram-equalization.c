@@ -96,6 +96,7 @@ gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
     if (core_pixel_is_uint8(pixel_type)) {
         g_free(src_data_cast);
     }
+    g_object_unref(size);
     g_object_unref(src);
     return TRUE;
 }

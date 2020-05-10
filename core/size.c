@@ -15,13 +15,7 @@ struct _CoreSize {
 G_DEFINE_TYPE(CoreSize, core_size, G_TYPE_OBJECT)
 
 
-// constructors
-static void core_size_class_init(CoreSizeClass *cls) {}
-
-static void core_size_init(CoreSize *self) {
-    self->width = self->height = 0;
-}
-
+/* CONSTRUCTORS */
 CoreSize *core_size_new(void) {
     return g_object_new(CORE_TYPE_SIZE, NULL);
 }
@@ -41,19 +35,29 @@ CoreSize *core_size_new_clone(CoreSize* old) {
     return new;
 }
 
-// destructors
+/* DESTRUCTORS */
 static void core_size_dispose(GObject *obj) {
-    g_print("core size obj dispose.\n");
     G_OBJECT_CLASS(core_size_parent_class)->dispose(obj);
 }
 
 static void core_size_finalize(GObject *obj) {
-    g_print("core size obj finalize.\n");
     G_OBJECT_CLASS(core_size_parent_class)->finalize(obj);
 }
 
+/* INIT FUNCTIONS */
+static void core_size_class_init(CoreSizeClass *cls) {
+    GObjectClass *obj_cls = G_OBJECT_CLASS(cls);
 
-// public methods
+    obj_cls->dispose = core_size_dispose;
+    obj_cls->finalize = core_size_finalize;
+}
+
+static void core_size_init(CoreSize *self) {
+    self->width = self->height = 0;
+}
+
+
+/* PUBLIC METHODS */
 // copy
 gboolean core_size_copy(CoreSize *self, CoreSize *another) {
     g_return_val_if_fail(self != NULL, FALSE);
