@@ -6,10 +6,10 @@
 #include <core/image.h>
 
 typedef struct {
-    gpointer data;
-    CoreColorSpace color_space;
-    CoreSize *size;
-    CorePixelType pixel_type;
+    gpointer data;//像素数据 行到列 左到右
+    CoreColorSpace color_space; //rgba /hr4v /二值图 /灰度图
+    CoreSize *size; //图像大小（像素）
+    CorePixelType pixel_type;//像素类型
     guint8 channel;
 } CoreImagePrivate;
 

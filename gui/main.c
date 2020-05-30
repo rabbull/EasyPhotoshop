@@ -25,9 +25,32 @@ void histeq(GtkWidget* widget, gpointer data) {
     g_object_unref(image);
 }
 
+void open(GtkWidget* widget,gpointer data){
+    GtkWidget *dialog;
+    dialog =gtk_file_chooser_dialog_new("open file",NULL,GTK_FILE_CHOOSER_ACTION_OPEN,
+                                                GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,
+                                                GTK_STOCK_SAVE,GTK_RESPONSE_ACCEPT,
+                                                NULL);
+    GtkFileFilter *filter;
+    filter = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter,"bmp");
+    gtk_file_filter_add_pattern(filter,"*.bmp");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog),filter);
+    if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+    {
+
+        GFile *file;
+        file = gtk_file_chooser_get_file (GTK_FILE_CHOOSER (dialog));
+
+        g_object_unref(file);
+    }
+    gtk_widget_destroy (dialog);
+}
+
+
 int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
-    GtkWidget *button_histeq, *button_grayscale;
+    GtkWidget *button_histeq, *button_grayscale,*button_open;
     GuiImageWidget *gui_image_widget;
     CoreImage *image;
 
@@ -54,6 +77,10 @@ int gui_main(int argc, char **argv) {
     button_histeq = gtk_button_new_with_label("histeq");
     g_signal_connect(G_OBJECT(button_histeq), "clicked", histeq, gui_image_widget);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_histeq));
+
+    button_open = gtk_button_new_with_label("open");
+    g_signal_connect(G_OBJECT(button_open),"clicked",open,gui_image_widget);
+    gtk_container_add(GTK_CONTAINER(box_buttons),GTK_WIDGET(button_open));
 
     gtk_widget_show_all(window);
 
