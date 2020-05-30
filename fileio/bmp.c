@@ -12,6 +12,10 @@ void bmp_init(FileIOInputFormatTable *table) {
     fileio_input_format_table_register(table, bmp_load);
 }
 
+void bmp_exit(FileIOInputFormatTable *table) {
+    fileio_input_format_table_unregister(table, bmp_load);
+}
+
 static CoreImage *bmp_load(GString *path) {
     CoreImage *image = NULL;
     void *buffer = NULL;

@@ -9,4 +9,6 @@
 
 void bmp_init(FileIOInputFormatTable *table);
 
+void bmp_exit(FileIOInputFormatTable *table);
+
 #endif //EASYPHOTOSHOP_BMP_H

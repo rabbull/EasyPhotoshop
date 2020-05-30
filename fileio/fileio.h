@@ -7,4 +7,6 @@
 
 void fileio_init();
 
+void fileio_exit();
+
 #endif //EASYPHOTOSHOP_FILEIO_H

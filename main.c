@@ -2,6 +2,9 @@
 #include <fileio/fileio.h>
 
 int main(int argc, char **argv) {
+    int ret;
     fileio_init();
-    return gui_main(argc, argv);
+    ret = gui_main(argc, argv);
+    fileio_exit();
+    return ret;
 }

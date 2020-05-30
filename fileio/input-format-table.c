@@ -35,6 +35,12 @@ FileIOInputFormatTable *fileio_input_format_table_get_instance() {
     return g_object_ref(instance);
 }
 
+/* NOTE: This method release the instance anyway. Used only when the whole program is exiting. */
+void fileio_input_format_table_release(FileIOInputFormatTable *self) {
+    g_object_unref(self);
+    g_object_unref(self);
+}
+
 gsize fileio_input_format_table_get_length(FileIOInputFormatTable *self) {
     FileIOInputFormatTablePrivate *private = fileio_input_format_table_get_instance_private(self);
     return g_list_length(private->table);
@@ -50,8 +56,7 @@ void fileio_input_format_table_register(FileIOInputFormatTable *self, input_meth
     private->table = g_list_append(private->table, im);
 }
 
-void fileio_input_format_table_unregister(FileIOInputFormatTable *self, gsize index) {
+void fileio_input_format_table_unregister(FileIOInputFormatTable *self, input_method_t im) {
     FileIOInputFormatTablePrivate *private = fileio_input_format_table_get_instance_private(self);
-    input_method_t im = g_list_nth_data(private->table, index);
     private->table = g_list_remove(private->table, im);
 }

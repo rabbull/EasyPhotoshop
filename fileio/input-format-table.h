@@ -24,13 +24,15 @@ struct _FileIOInputFormatTableClass {
 
 FileIOInputFormatTable *fileio_input_format_table_get_instance();
 
+void fileio_input_format_table_release(FileIOInputFormatTable *self);
+
 gsize fileio_input_format_table_get_length(FileIOInputFormatTable *self);
 
 input_method_t fileio_input_format_table_get_input_method(FileIOInputFormatTable *self, gsize index);
 
 void fileio_input_format_table_register(FileIOInputFormatTable *self, input_method_t im);
 
-void fileio_input_format_table_unregister(FileIOInputFormatTable *self, gsize index);
+void fileio_input_format_table_unregister(FileIOInputFormatTable *self, input_method_t im);
 
 G_END_DECLS
 
