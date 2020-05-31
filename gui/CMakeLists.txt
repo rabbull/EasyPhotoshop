@@ -14,5 +14,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 include_directories(${GTK_INCLUDE_DIRS})
 
-add_library(EasyPhotoshopGUI main.c image-widget.c)
+add_library(EasyPhotoshopGUI main.c image-widget.c callbacks.c callbacks.h)
 target_link_libraries(EasyPhotoshopGUI EasyPhotoshopCore EasyPhotoshopImageProcess ${GTK_LIBRARIES})
