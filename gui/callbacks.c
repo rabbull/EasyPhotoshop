@@ -9,7 +9,8 @@
 #include <imgproc/histogram-equalization.h>
 
 void grayscale(GtkWidget *widget, gpointer data) {
-    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(data);
+    struct grayscale_args *args = data;
+    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(args->gui_image_widget);
     CoreImage *image = gui_image_widget_get_image(img_widget);
     imgproc_to_grayscale(image, &image);
     gui_image_widget_update_image(img_widget, image);
@@ -17,7 +18,8 @@ void grayscale(GtkWidget *widget, gpointer data) {
 }
 
 void histeq(GtkWidget *widget, gpointer data) {
-    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(data);
+    struct histeq_args *args = data;
+    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(args->gui_image_widget);
     CoreImage *image = gui_image_widget_get_image(img_widget);
     imgproc_histogram_equalization(image, &image);
     gui_image_widget_update_image(img_widget, image);
@@ -25,9 +27,10 @@ void histeq(GtkWidget *widget, gpointer data) {
 }
 
 void open_file(GtkWidget *widget, gpointer data) {
+    struct open_file_args *args = data;
     GtkWidget *dialog;
-    dialog = gtk_file_chooser_dialog_new("open file", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, "Cancel", GTK_RESPONSE_CANCEL,
-                                         "Open", GTK_RESPONSE_ACCEPT, NULL);
+    dialog = gtk_file_chooser_dialog_new("open file", args->parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Cancel",
+                                         GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
     GtkFileFilter *filter;
     filter = gtk_file_filter_new();
     gtk_file_filter_set_name(filter, "bmp");

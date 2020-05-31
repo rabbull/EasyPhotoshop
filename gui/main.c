@@ -16,6 +16,10 @@ int gui_main(int argc, char **argv) {
     GuiImageWidget *gui_image_widget;
     CoreImage *image;
 
+    struct grayscale_args grayscale_args;
+    struct histeq_args histeq_args;
+    struct open_file_args open_file_args;
+
     gtk_init(&argc, &argv);
 
     window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -33,15 +37,18 @@ int gui_main(int argc, char **argv) {
     gtk_container_add(GTK_CONTAINER(box_main), GTK_WIDGET(box_buttons));
 
     button_grayscale = gtk_button_new_with_label("grayscale");
-    g_signal_connect(G_OBJECT(button_grayscale), "clicked", (GCallback) grayscale, gui_image_widget);
+    grayscale_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_grayscale), "clicked", G_CALLBACK(grayscale), &grayscale_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_grayscale));
 
     button_histeq = gtk_button_new_with_label("histeq");
-    g_signal_connect(G_OBJECT(button_histeq), "clicked", (GCallback) histeq, gui_image_widget);
+    histeq_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_histeq), "clicked", G_CALLBACK(histeq), &histeq_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_histeq));
 
     button_open = gtk_button_new_with_label("open file");
-    g_signal_connect(G_OBJECT(button_open), "clicked", (GCallback) open_file, gui_image_widget);
+    open_file_args.parent = GTK_WINDOW(window);
+    g_signal_connect(G_OBJECT(button_open), "clicked", G_CALLBACK(open_file), &open_file_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_open));
 
     gtk_widget_show_all(window);
