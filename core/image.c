@@ -95,6 +95,8 @@ CoreImage *core_image_new_open(GString *path) {
             return image;
         }
     }
+
+    g_object_unref(table);
     return NULL;
 }
 
