@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <core/image.h>
+#include <fileio/input-format-table.h>
 
 typedef struct {
     gpointer data;
@@ -76,6 +77,25 @@ CoreImage *core_image_new_clone(CoreImage *old) {
     new = core_image_new();
     core_image_copy(old, new);
     return new;
+}
+
+CoreImage *core_image_new_open(GString *path) {
+    CoreImage *image;
+    FileIOInputFormatTable *table;
+    gsize n;
+    gsize i;
+    input_method_t input_method;
+
+    table = fileio_input_format_table_get_instance();
+    n = fileio_input_format_table_get_length(table);
+    for (i = 0; i < n; ++i) {
+        input_method = fileio_input_format_table_get_input_method(table, i);
+        image = input_method(path);
+        if (image) {
+            return image;
+        }
+    }
+    return NULL;
 }
 
 /* DESTRUCTORS */

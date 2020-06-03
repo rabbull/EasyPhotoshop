@@ -36,6 +36,8 @@ CoreImage *core_image_new_fill_with_color(CoreSize *size, CoreColorSpace color_s
 
 CoreImage *core_image_new_clone(CoreImage *old);
 
+CoreImage *core_image_new_open(GString* path);
+
 
 /* PUBLIC METHODS */
 gboolean core_image_empty(CoreImage *self);
