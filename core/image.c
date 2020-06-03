@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <core/image.h>
 #include <fileio/input-format-table.h>
+#include <fileio/output-format-table.h>
 
 typedef struct {
     gpointer data;
@@ -259,4 +260,11 @@ gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace c
     private->color_space = color_space;
     private->pixel_type = pixel_type;
     return TRUE;
+}
+
+void core_image_save(CoreImage *self, GString *path) {
+    FileIOOutputFormatTable *table = fileio_output_format_table_get_instance();
+    output_method_t output_method = fileio_output_format_table_get_output_method(table, 0);
+
+    output_method(self, path);
 }

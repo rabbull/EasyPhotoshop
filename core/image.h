@@ -66,6 +66,8 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
 gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace color_space, CorePixelType pixel_type,
                                 CoreSize *size, gboolean copy_data);
 
+void core_image_save(CoreImage *self, GString *path);
+
 G_END_DECLS
 
 #endif //EASYPHOTOSHOP_IMAGE_H
