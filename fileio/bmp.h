@@ -6,9 +6,10 @@
 #define EASYPHOTOSHOP_BMP_H
 
 #include "input-format-table.h"
+#include "output-format-table.h"
 
-void bmp_init(FileIOInputFormatTable *table);
+void bmp_init(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *output_table);
 
-void bmp_exit(FileIOInputFormatTable *table);
+void bmp_exit(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *output_table);
 
 #endif //EASYPHOTOSHOP_BMP_H

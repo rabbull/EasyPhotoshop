@@ -19,5 +19,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 
-add_library(EasyPhotoshopFileIO input-format-table.c fileio.c fileio.h bmp.c bmp.h)
+add_library(EasyPhotoshopFileIO input-format-table.c fileio.c fileio.h bmp.c bmp.h output-format-table.c output-format-table.h)
 target_link_libraries(EasyPhotoshopFileIO ${GLib_LIBRARIES} ${GObj_LIBRARIES})
