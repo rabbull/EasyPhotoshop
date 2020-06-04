@@ -262,9 +262,13 @@ gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace c
     return TRUE;
 }
 
-void core_image_save(CoreImage *self, GString *path) {
-    FileIOOutputFormatTable *table = fileio_output_format_table_get_instance();
-    output_method_t output_method = fileio_output_format_table_get_output_method(table, 0);
+char const *CORE_IMAGE_SAVE_METHOD_BMP = "BMP";
 
-    output_method(self, path);
+gboolean core_image_save(CoreImage *self, GString *path, char const *method) {
+    FileIOOutputFormatTable *table = fileio_output_format_table_get_instance();
+    output_method_t output_method = fileio_output_format_table_get_output_method(table, method);
+    if (output_method == NULL) {
+        return FALSE;
+    }
+    return output_method(self, path);
 }

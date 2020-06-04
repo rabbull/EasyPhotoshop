@@ -13,7 +13,7 @@ G_BEGIN_DECLS
 
 G_DECLARE_DERIVABLE_TYPE(FileIOOutputFormatTable, fileio_output_format_table, FILEIO, OUTPUT_FORMAT_TABLE, GObject)
 
-typedef void (*output_method_t)(CoreImage *image, GString *string);
+typedef gboolean (*output_method_t)(CoreImage *image, GString *string);
 
 struct _FileIOOutputFormatTableClass {
     GObjectClass parent_class;
@@ -25,13 +25,13 @@ FileIOOutputFormatTable *fileio_output_format_table_get_instance();
 
 void fileio_output_format_table_release(FileIOOutputFormatTable *self);
 
-gsize fileio_output_format_table_get_length(FileIOOutputFormatTable *self);
+GList* fileio_output_format_table_get_names(FileIOOutputFormatTable *self);
 
-output_method_t fileio_output_format_table_get_output_method(FileIOOutputFormatTable *self, gsize index);
+output_method_t fileio_output_format_table_get_output_method(FileIOOutputFormatTable *self, char const *name);
 
-void fileio_output_format_table_register(FileIOOutputFormatTable *self, output_method_t im);
+gboolean fileio_output_format_table_register(FileIOOutputFormatTable *self, char const *name, output_method_t im);
 
-void fileio_output_format_table_unregister(FileIOOutputFormatTable *self, output_method_t im);
+void fileio_output_format_table_unregister(FileIOOutputFormatTable *self, char const *name);
 
 G_END_DECLS
 

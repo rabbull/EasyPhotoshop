@@ -9,12 +9,15 @@
 #include "output-format-table.h"
 
 typedef struct {
-    GList *table;
+    GHashTable *table;
 } FileIOOutputFormatTablePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(FileIOOutputFormatTable, fileio_output_format_table, G_TYPE_OBJECT)
 
 static void fileio_output_format_table_dispose(GObject *obj) {
+    FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(
+            FILEIO_OUTPUT_FORMAT_TABLE(obj));
+    g_clear_object(&private->table);
     G_OBJECT_CLASS(fileio_output_format_table_parent_class)->dispose(obj);
 }
 
@@ -22,7 +25,10 @@ static void fileio_output_format_table_finalize(GObject *obj) {
     G_OBJECT_CLASS(fileio_output_format_table_parent_class)->finalize(obj);
 }
 
-static void fileio_output_format_table_init(FileIOOutputFormatTable *table) {}
+static void fileio_output_format_table_init(FileIOOutputFormatTable *table) {
+    FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(table);
+    private->table = g_hash_table_new(g_str_hash, g_str_equal);
+}
 
 static void fileio_output_format_table_class_init(FileIOOutputFormatTableClass *class) {
     G_OBJECT_CLASS(class)->dispose = fileio_output_format_table_dispose;
@@ -34,33 +40,36 @@ FileIOOutputFormatTable *fileio_output_format_table_get_instance() {
     if (instance == NULL) {
         instance = g_object_new(FILEIO_TYPE_OUTPUT_FORMAT_TABLE, NULL);
     }
-
-    /* add ref count before return to avoid user accidentally release the instance */
     return g_object_ref(instance);
 }
 
 /* NOTE: This method release the instance anyway. Used only when the whole program is exiting. */
 void fileio_output_format_table_release(FileIOOutputFormatTable *self) {
     g_object_unref(self);
-    g_object_unref(self);
 }
 
-gsize fileio_output_format_table_get_length(FileIOOutputFormatTable *self) {
+/* NOTE: use g_list_free() to release the returned list when done using it */
+GList* fileio_output_format_table_get_names(FileIOOutputFormatTable *self) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
-    return g_list_length(private->table);
+    return g_hash_table_get_keys(private->table);
 }
 
-output_method_t fileio_output_format_table_get_output_method(FileIOOutputFormatTable *self, gsize index) {
+output_method_t fileio_output_format_table_get_output_method(FileIOOutputFormatTable *self, char const *name) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
-    return g_object_ref(g_list_nth_data(private->table, index));
+    return g_hash_table_lookup(private->table, name);
 }
 
-void fileio_output_format_table_register(FileIOOutputFormatTable *self, output_method_t im) {
+gboolean fileio_output_format_table_register(FileIOOutputFormatTable *self, char const *name, output_method_t im) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
-    private->table = g_list_append(private->table, im);
+    if (!g_hash_table_lookup(private->table, name)) {
+        g_hash_table_insert(private->table, name, im);
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
-void fileio_output_format_table_unregister(FileIOOutputFormatTable *self, output_method_t im) {
+void fileio_output_format_table_unregister(FileIOOutputFormatTable *self, char const *name) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
-    private->table = g_list_remove(private->table, im);
+    g_hash_table_remove(private->table, name);
 }

@@ -8,18 +8,18 @@ static CoreImage *bmp_load(GString *path);
 
 static void do_bmp_load(char const *path, void **buffer);
 
-static void bmp_save(CoreImage *image, GString *path);
+static gboolean bmp_save(CoreImage *image, GString *path);
 
-static void do_bmp_save(char const *path, void *buffer);
+static gboolean do_bmp_save(char const *path, void *buffer);
 
 void bmp_init(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *output_table) {
     fileio_input_format_table_register(input_table, bmp_load);
-    fileio_output_format_table_register(output_table, bmp_save);
+    fileio_output_format_table_register(output_table, "BMP", bmp_save);
 }
 
 void bmp_exit(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *output_table) {
     fileio_input_format_table_unregister(input_table, bmp_load);
-    fileio_output_format_table_unregister(output_table, bmp_save);
+    fileio_output_format_table_unregister(output_table, "BMP");
 }
 
 static CoreImage *bmp_load(GString *path) {
@@ -36,11 +36,13 @@ static void do_bmp_load(char const *const path, void **buffer) {
     /* TODO: implement it */
 }
 
-static void bmp_save(CoreImage *image, GString *path) {
+static gboolean bmp_save(CoreImage *image, GString *path) {
     /* TODO: add necessary information to interface */
-    do_bmp_save(path->str, core_image_get_data(image));
+    return do_bmp_save(path->str, core_image_get_data(image));
 }
 
-static void do_bmp_save(char const *path, void *buffer) {
+/* NOTE: return whether succeeded */
+static gboolean do_bmp_save(char const *path, void *buffer) {
     /* TODO: implement it */
+    return FALSE;
 }
