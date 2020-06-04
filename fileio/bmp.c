@@ -2,7 +2,43 @@
 // Created by karl on 30/5/2020.
 //
 
+#include <stdint.h>
+#include <stdio.h>
+
 #include "bmp.h"
+
+typedef uint16_t WORD, BYTE;
+typedef uint32_t DWORD;
+typedef int32_t LONG;
+
+typedef struct __attribute__((__packed__)) {
+    WORD bfType;
+    DWORD bfSize;
+    WORD bfReserved1;
+    DWORD bfReserved2;
+    DWORD bfOffBits;
+} BITMAPFILEHEADER;
+
+typedef struct __attribute__((__packed__)) {
+    DWORD biSize;
+    LONG biWidth;
+    LONG biHeight;
+    WORD biPlanes;
+    WORD biBitCount;
+    DWORD biCompression;
+    DWORD biSizeImage;
+    LONG biXpelsPerMeter;
+    LONG biYpelsPerMeter;
+    DWORD biClrUsed;
+    DWORD biClrImportant;
+} BITMAPINFOHEADER;
+
+typedef struct __attribute__((__packed__)) {
+    BYTE rgbBlue;
+    BYTE rgbGreen;
+    BYTE rgbRed;
+    BYTE rgbReserved;
+} RGBQUAD;
 
 static CoreImage *bmp_load(GString *path);
 
@@ -28,12 +64,22 @@ static CoreImage *bmp_load(GString *path) {
     do_bmp_load(path->str, &buffer);
 
     /* TODO: convert buffer into CoreImage */
+    image = core_image_new_with_data(buffer, CORE_COLOR_SPACE_RGB, CORE_PIXEL_U3, NULL, TRUE);
+
     /* always return NULL until being implemented */
     return image;
 }
 
 static void do_bmp_load(char const *const path, void **buffer) {
-    /* TODO: implement it */
+    FILE *file;
+    BITMAPINFOHEADER bmp_file_header;
+    BITMAPINFOHEADER bmp_info;
+
+    file = fopen(path, "rb");
+    fread(&bmp_file_header, sizeof(BITMAPFILEHEADER), 1, file);
+    fread(&bmp_info, sizeof(BITMAPINFOHEADER), 1, file);
+
+    /* TODO: further implementation */
 }
 
 static gboolean bmp_save(CoreImage *image, GString *path) {
