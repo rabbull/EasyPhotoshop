@@ -16,4 +16,5 @@ add_subdirectory(gui)
 
 message(STATUS "Configuring main program..")
 
+add_executable(EasyPhotoshop main.c)
 target_link_libraries(EasyPhotoshop EasyPhotoshopCore EasyPhotoshopImageProcess EasyPhotoshopGUI)
