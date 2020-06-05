@@ -15,7 +15,7 @@ G_DECLARE_FINAL_TYPE(CoreSize, core_size, CORE, SIZE, GObject)
 
 CoreSize *core_size_new(void);
 
-CoreSize *core_size_new_with_value(guint32 width, guint32 height);
+CoreSize *core_size_new_with_value(guint32 height, guint32 width);
 
 CoreSize *core_size_new_clone(CoreSize* old);
 

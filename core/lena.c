@@ -527,7 +527,7 @@ CoreImage *core_image_new_lena() {
     static const guint8 width = 64;
     static const guint8 height = 64;
 
-    size = core_size_new_with_value(width, height);
+    size = core_size_new_with_value(height, width);
     img = core_image_new_with_data(lena_64_64_data, CORE_COLOR_SPACE_RGB, CORE_PIXEL_U3, size, TRUE);
     g_object_unref(size);
     return img;

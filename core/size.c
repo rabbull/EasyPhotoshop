@@ -20,7 +20,7 @@ CoreSize *core_size_new(void) {
     return g_object_new(CORE_TYPE_SIZE, NULL);
 }
 
-CoreSize *core_size_new_with_value(guint32 width, guint32 height) {
+CoreSize *core_size_new_with_value(guint32 height, guint32 width) {
     CoreSize *size;
     size = core_size_new();
     size->width = width;

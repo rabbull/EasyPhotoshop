@@ -43,7 +43,7 @@ typedef struct __attribute__((__packed__)) {
 
 static CoreImage *bmp_load(const char *path);
 
-static void do_bmp_load(char const *path, void **buffer, CoreSize **size);
+static void do_bmp_load(char const *path, void **buffer, unsigned *h, unsigned *w);
 
 static gboolean bmp_save(CoreImage *image, GString *path);
 
@@ -59,21 +59,28 @@ void bmp_exit(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *outp
     fileio_output_format_table_unregister(output_table, "BMP");
 }
 
-static CoreImage *bmp_load(const char * const path) {
+static CoreImage *bmp_load(const char *const path) {
     CoreImage *image = NULL;
     void *buffer = NULL;
-    CoreSize *size = core_size_new();
-    do_bmp_load(path, &buffer, &size);
+    CoreSize *size;
+    unsigned h, w;
+    do_bmp_load(path, &buffer, &h, &w);
+    size = core_size_new_with_value(h, w);
     image = core_image_new_with_data(buffer, CORE_COLOR_SPACE_RGB, CORE_PIXEL_U3, size, TRUE);
     return image;
 }
 
-static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) {
-
+static void do_bmp_load(char const *const path, void **buffer, unsigned *h, unsigned *w) {
     FILE *file;
     BITMAPFILEHEADER bmp_file_header;
     BITMAPINFOHEADER bmp_info;
     RGBQUAD *rgbquad = NULL;
+    gsize height, width;
+    guint8 *line;
+    guint8 *dst_data;
+    gsize i, j, k;
+    guint8 tmp;
+
     file = fopen(path, "rb");
     if (file == NULL) {
         printf("failed to open");
@@ -81,13 +88,10 @@ static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) 
 
     fread(&bmp_file_header, sizeof(BITMAPFILEHEADER), 1, file);
     fread(&bmp_info, sizeof(BITMAPINFOHEADER), 1, file);
-    int width = bmp_info.biWidth;
-    int height = bmp_info.biHeight;
-    if (width < 0) { width = -width; }
-    if (height < 0) { height = -height; }
-
-    core_size_set_height(*size, height);
-    core_size_set_width(*size, width);
+    height = abs(bmp_info.biHeight);
+    width = abs(bmp_info.biWidth);
+    *h = height;
+    *w = width;
 
     if (bmp_info.biBitCount <= 8) {
         rgbquad = malloc((1u << bmp_info.biBitCount) * sizeof(RGBQUAD));
@@ -98,13 +102,13 @@ static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) 
     if (line_size % 4) {
         line_size += 4 - line_size % 4;
     }
-    guint8 *line = malloc(line_size);
-    guint8 *dst_data = g_malloc(height * width * sizeof(guint8) * 3);
+    line = malloc(line_size);
+    dst_data = g_malloc(height * width * sizeof(guint8) * 3);
     switch (bmp_info.biBitCount) {
         case 8:
-            for (int i = 0; i < height; ++i) {
+            for (i = 0; i < height; ++i) {
                 fread(line, 1, line_size, file);
-                for (int j = 0; j < width; ++j) {
+                for (j = 0; j < width; ++j) {
                     dst_data[i * width * 3 + j * 3 + 0] = rgbquad[(int) line[j]].rgbRed;
                     dst_data[i * width * 3 + j * 3 + 1] = rgbquad[(int) line[j]].rgbGreen;
                     dst_data[i * width * 3 + j * 3 + 2] = rgbquad[(int) line[j]].rgbBlue;
@@ -113,9 +117,9 @@ static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) 
             break;
 
         case 24:
-            for (int i = 0; i < height; ++i) {
+            for (i = 0; i < height; ++i) {
                 fread(line, 1, line_size, file);
-                for (int j = 0; j < width; ++j) {
+                for (j = 0; j < width; ++j) {
                     dst_data[i * width * 3 + j * 3 + 0] = line[j * 3 + 2];
                     dst_data[i * width * 3 + j * 3 + 1] = line[j * 3 + 1];
                     dst_data[i * width * 3 + j * 3 + 2] = line[j * 3 + 0];
@@ -124,9 +128,9 @@ static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) 
             break;
 
         case 32:
-            for (int i = 0; i < height; ++i) {
+            for (i = 0; i < height; ++i) {
                 fread(line, 1, line_size, file);
-                for (int j = 0; j < width; ++j) {
+                for (j = 0; j < width; ++j) {
                     dst_data[i * width * 3 + j * 3 + 0] = line[j * 4 + 2];
                     dst_data[i * width * 3 + j * 3 + 1] = line[j * 4 + 1];
                     dst_data[i * width * 3 + j * 3 + 2] = line[j * 4 + 0];
@@ -138,19 +142,19 @@ static void do_bmp_load(char const *const path, void **buffer, CoreSize **size) 
     /* reverse if needed */
     if (bmp_info.biHeight > 0) {
         gsize line_width = width * 3;
-        for (int i = 0; i < height / 2; ++i) {
-            for (int j = 0; j < line_width; ++j) {
-                guint8 tmp = dst_data[i * line_width + j];
+        for (i = 0; i < height / 2; ++i) {
+            for (j = 0; j < line_width; ++j) {
+                tmp = dst_data[i * line_width + j];
                 dst_data[i * line_width + j] = dst_data[(height - i - 1) * line_width + j];
                 dst_data[(height - i - 1) * line_width + j] = tmp;
             }
         }
     }
     if (bmp_info.biWidth < 0) {
-        for (int i = 0; i < height / 2; ++i) {
-            for (int j = 0; j < width; ++j) {
-                for (int k = 0; k < 3; ++k) {
-                    guint8 tmp = dst_data[i * width * 3 + j * 3 + k];
+        for (i = 0; i < height / 2; ++i) {
+            for (j = 0; j < width; ++j) {
+                for (k = 0; k < 3; ++k) {
+                    tmp = dst_data[i * width * 3 + j * 3 + k];
                     dst_data[i * width * 3 + j * 3 + k] = dst_data[i * width * 3 + (width - j - 1) * 3 + k];
                     dst_data[i * width * 3 + (width - j - 1) * 3 + k] = tmp;
                 }
