@@ -48,7 +48,7 @@ gsize fileio_input_format_table_get_length(FileIOInputFormatTable *self) {
 
 input_method_t fileio_input_format_table_get_input_method(FileIOInputFormatTable *self, gsize index) {
     FileIOInputFormatTablePrivate *private = fileio_input_format_table_get_instance_private(self);
-    return g_object_ref(g_list_nth_data(private->table, index));
+    return g_list_nth_data(private->table, index);
 }
 
 void fileio_input_format_table_register(FileIOInputFormatTable *self, input_method_t im) {

@@ -49,7 +49,7 @@ void fileio_output_format_table_release(FileIOOutputFormatTable *self) {
 }
 
 /* NOTE: use g_list_free() to release the returned list when done using it */
-GList* fileio_output_format_table_get_names(FileIOOutputFormatTable *self) {
+GList *fileio_output_format_table_get_names(FileIOOutputFormatTable *self) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
     return g_hash_table_get_keys(private->table);
 }
@@ -62,7 +62,7 @@ output_method_t fileio_output_format_table_get_output_method(FileIOOutputFormatT
 gboolean fileio_output_format_table_register(FileIOOutputFormatTable *self, char const *name, output_method_t im) {
     FileIOOutputFormatTablePrivate *private = fileio_output_format_table_get_instance_private(self);
     if (!g_hash_table_lookup(private->table, name)) {
-        g_hash_table_insert(private->table, name, im);
+        g_hash_table_insert(private->table, (gpointer) name, im);
         return TRUE;
     } else {
         return FALSE;

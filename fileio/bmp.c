@@ -7,7 +7,8 @@
 
 #include "bmp.h"
 
-typedef uint16_t WORD, BYTE;
+typedef uint8_t BYTE;
+typedef uint16_t WORD;
 typedef uint32_t DWORD;
 typedef int32_t LONG;
 
@@ -15,7 +16,7 @@ typedef struct __attribute__((__packed__)) {
     WORD bfType;
     DWORD bfSize;
     WORD bfReserved1;
-    DWORD bfReserved2;
+    WORD bfReserved2;
     DWORD bfOffBits;
 } BITMAPFILEHEADER;
 

@@ -48,6 +48,7 @@ int gui_main(int argc, char **argv) {
 
     button_open = gtk_button_new_with_label("open file");
     open_file_args.parent = GTK_WINDOW(window);
+    open_file_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_open), "clicked", G_CALLBACK(open_file), &open_file_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_open));
 

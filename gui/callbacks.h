@@ -22,6 +22,7 @@ void histeq(GtkWidget *widget, gpointer data);
 
 struct open_file_args {
     GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
 };
 
 void open_file(GtkWidget *widget, gpointer data);
