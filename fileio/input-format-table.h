@@ -14,7 +14,7 @@ G_BEGIN_DECLS
 
 G_DECLARE_DERIVABLE_TYPE(FileIOInputFormatTable, fileio_input_format_table, FILEIO, INPUT_FORMAT_TABLE, GObject)
 
-typedef CoreImage *(*input_method_t)(GString *string);
+typedef CoreImage *(*input_method_t)(char const *string);
 
 struct _FileIOInputFormatTableClass {
     GObjectClass parent_class;

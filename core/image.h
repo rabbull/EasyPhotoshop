@@ -36,7 +36,7 @@ CoreImage *core_image_new_fill_with_color(CoreSize *size, CoreColorSpace color_s
 
 CoreImage *core_image_new_clone(CoreImage *old);
 
-CoreImage *core_image_new_open(GString* path);
+CoreImage *core_image_new_open(const char *path);
 
 
 /* PUBLIC METHODS */
@@ -56,9 +56,9 @@ gpointer core_image_get_data(CoreImage *self);
 
 gpointer core_image_get_pixel(CoreImage *self, guint32 x, guint32 y);
 
-CoreColorSpace core_image_get_color_space(CoreImage* self);
+CoreColorSpace core_image_get_color_space(CoreImage *self);
 
-CorePixelType core_image_get_pixel_type(CoreImage* self);
+CorePixelType core_image_get_pixel_type(CoreImage *self);
 
 /* OTHERS */
 gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
@@ -66,7 +66,7 @@ gboolean core_image_reshape(CoreImage *self, CoreSize *size, GError **error);
 gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace color_space, CorePixelType pixel_type,
                                 CoreSize *size, gboolean copy_data);
 
-extern char const* CORE_IMAGE_SAVE_METHOD_BMP;
+extern char const *CORE_IMAGE_SAVE_METHOD_BMP;
 
 gboolean core_image_save(CoreImage *self, GString *path, char const *method);
 

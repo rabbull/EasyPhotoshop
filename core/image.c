@@ -80,7 +80,7 @@ CoreImage *core_image_new_clone(CoreImage *old) {
     return new;
 }
 
-CoreImage *core_image_new_open(GString *path) {
+CoreImage *core_image_new_open(const char *const path) {
     CoreImage *image;
     FileIOInputFormatTable *table;
     gsize n;
