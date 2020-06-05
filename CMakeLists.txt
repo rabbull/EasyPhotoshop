@@ -14,7 +14,12 @@ add_subdirectory(imgproc)
 message(STATUS "Importing gui module..")
 add_subdirectory(gui)
 
+message(STATUS "Importing file io module..")
+add_subdirectory(fileio)
+
 message(STATUS "Configuring main program..")
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 add_executable(EasyPhotoshop main.c)
-target_link_libraries(EasyPhotoshop EasyPhotoshopCore EasyPhotoshopImageProcess EasyPhotoshopGUI)
+target_link_libraries(EasyPhotoshop EasyPhotoshopCore EasyPhotoshopImageProcess EasyPhotoshopGUI EasyPhotoshopFileIO)

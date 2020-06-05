@@ -4,6 +4,8 @@
 
 #include <stdint.h>
 #include <core/image.h>
+#include <fileio/input-format-table.h>
+#include <fileio/output-format-table.h>
 
 typedef struct {
     gpointer data;//像素数据 行到列 左到右
@@ -76,6 +78,27 @@ CoreImage *core_image_new_clone(CoreImage *old) {
     new = core_image_new();
     core_image_copy(old, new);
     return new;
+}
+
+CoreImage *core_image_new_open(const char *const path) {
+    CoreImage *image;
+    FileIOInputFormatTable *table;
+    gsize n;
+    gsize i;
+    input_method_t input_method;
+
+    table = fileio_input_format_table_get_instance();
+    n = fileio_input_format_table_get_length(table);
+    for (i = 0; i < n; ++i) {
+        input_method = fileio_input_format_table_get_input_method(table, i);
+        image = input_method(path);
+        if (image) {
+            return image;
+        }
+    }
+
+    g_object_unref(table);
+    return NULL;
 }
 
 /* DESTRUCTORS */
@@ -237,4 +260,15 @@ gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace c
     private->color_space = color_space;
     private->pixel_type = pixel_type;
     return TRUE;
+}
+
+char const *CORE_IMAGE_SAVE_METHOD_BMP = "BMP";
+
+gboolean core_image_save(CoreImage *self, GString *path, char const *method) {
+    FileIOOutputFormatTable *table = fileio_output_format_table_get_instance();
+    output_method_t output_method = fileio_output_format_table_get_output_method(table, method);
+    if (output_method == NULL) {
+        return FALSE;
+    }
+    return output_method(self, path);
 }

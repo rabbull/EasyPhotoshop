@@ -4,18 +4,24 @@
 
 #include <gui/image-widget.h>
 
-/* MACRO FUNCTIONS TO REDUCE REDUNDANCY, NOT A METHOD */
-#define __IMAGE_WIDGET_COPY_DATA_C1(i, j, type, src, dst, ratio)  \
-for (i = 0; i < area; ++i) {  \
-    for (j = 0; j < 3; ++j) {  \
-        ((guint8 *) dst)[i * 3 + j] = ((type *) src)[i] * ratio;  \
+/* MACRO FUNCTIONS TO REDUCE MASSIVE REDUNDANCY. NOT METHODS. */
+#define __IMAGE_WIDGET_COPY_DATA_C3(type)  \
+for (i = 0; i < height; ++i) {  \
+    for (j = 0; j < width; ++j) {  \
+        for (k = 0; k < 3; ++k) {  \
+        ((guint8 *) dst_data)[stride * i + j * 3 + k] =  \
+            (guint8) ((type *) src_data)[width * 3 * i + j * 3 + k] * mag_ratio;  \
+        }  \
     }  \
 }
 
-#define __IMAGE_WIDGET_COPY_DATA_C3(i, j, type, src, dst, ratio)  \
-for (i = 0; i < area; ++i) {  \
-    for (j = 0; j < 3; ++j) {  \
-        ((guint8 *) dst)[i * 3 + j] = ((type *) src)[i * 3 + j] * ratio;  \
+#define __IMAGE_WIDGET_COPY_DATA_C1(type)  \
+for (i = 0; i < height; ++i) {  \
+    for (j = 0; j < width; ++j) {  \
+        for (k = 0; k < 3; ++k) {  \
+        ((guint8 *) dst_data)[stride * i + j * 3 + k] =  \
+            (guint8) ((type *) src_data)[width * i + j] * mag_ratio;  \
+        }  \
     }  \
 }
 
@@ -61,7 +67,9 @@ GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
 gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     CoreSize *size;
     GdkPixbuf *pixbuf;
-    gsize i, j, area;
+    gsize i, j, k;
+    gsize width, height;
+    gsize stride;
     gdouble range, mag_ratio;
     CoreColorSpace color_space;
     CorePixelType pixel_type;
@@ -73,7 +81,8 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     private->image = g_object_ref(image);
 
     size = core_image_get_size(image);
-    area = core_size_get_area(size);
+    width = core_size_get_width(size);
+    height = core_size_get_height(size);
     color_space = core_image_get_color_space(image);
     pixel_type = core_image_get_pixel_type(image);
     range = core_pixel_get_range(pixel_type);
@@ -83,18 +92,19 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
 
     src_data = core_image_get_data(image);
     dst_data = gdk_pixbuf_get_pixels(pixbuf);
+    stride = gdk_pixbuf_get_rowstride(pixbuf);
 
     if (color_space == CORE_COLOR_SPACE_RGB) {
-        if (core_pixel_is_uint8(pixel_type)) {
-            __IMAGE_WIDGET_COPY_DATA_C3(i, j, guint8, src_data, dst_data, mag_ratio)
-        } else if (core_pixel_is_double(pixel_type)) {
-            __IMAGE_WIDGET_COPY_DATA_C3(i, j, gdouble, src_data, dst_data, mag_ratio)
+        if (core_pixel_is_double(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C3(gdouble)
+        } else if (core_pixel_is_uint8(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C3(guint8)
         }
     } else if (color_space == CORE_COLOR_SPACE_GRAY_SCALE || color_space == CORE_COLOR_SPACE_BIN) {
-        if (core_pixel_is_uint8(pixel_type)) {
-            __IMAGE_WIDGET_COPY_DATA_C1(i, j, guint8, src_data, dst_data, mag_ratio)
-        } else if (core_pixel_is_double(pixel_type)) {
-            __IMAGE_WIDGET_COPY_DATA_C1(i, j, gdouble, src_data, dst_data, mag_ratio)
+        if (core_pixel_is_double(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C1(gdouble)
+        } else if (core_pixel_is_uint8(pixel_type)) {
+            __IMAGE_WIDGET_COPY_DATA_C1(guint8)
         }
     }
 
