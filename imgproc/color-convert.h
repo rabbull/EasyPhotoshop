@@ -8,6 +8,10 @@
 #include <glib-object.h>
 #include <core/image.h>
 
+gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst);
+
+gboolean imgproc_to_RGB(CoreImage *src, CoreImage **dst);
+
 gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst);
 
 gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble threshold, gboolean inverse);

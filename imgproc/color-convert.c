@@ -2,9 +2,93 @@
 // Created by karl_ on 2020-5-3.
 //
 
+#include <math.h>
 #include <cblas.h>
 #include <imgproc/color-convert.h>
 
+gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
+    CoreSize *size;
+    CoreColorSpace src_color_space;
+    CorePixelType src_pixel_type;
+    gdouble *src_data_cast, *dst_data;
+    gdouble *hsl_pixel, *rgb_pixel, c_max, c_min, c;
+    gsize i, j, area;
+
+    size = core_image_get_size(src);
+    area = core_size_get_area(size);
+    src_color_space = core_image_get_color_space(src);
+    src_pixel_type = core_image_get_pixel_type(src);
+
+    g_return_val_if_fail(src_color_space == CORE_COLOR_SPACE_RGB, FALSE);
+
+    if (core_pixel_is_double(src_pixel_type)) {
+        src_data_cast = core_image_get_data(src);
+    } else if (core_pixel_is_uint8(src_pixel_type)) {
+        src_data_cast = malloc(sizeof(gdouble) * core_size_get_area(size));
+        for (i = 0; i < core_size_get_area(size) * 3; ++i) {
+            src_data_cast[i] = ((guint8 *) core_image_get_data(src))[i] / core_pixel_get_range(src_pixel_type);
+        }
+    } else {
+        return FALSE;
+    }
+
+    dst_data = g_malloc(sizeof(gdouble) * core_size_get_area(size));
+    for (i = 0; i < area; ++i) {
+        hsl_pixel = dst_data + i * 3;
+        rgb_pixel = src_data_cast + i * 3;
+        c_min = 1;
+        c_max = 0;
+        c = c_max - c_min;
+        for (j = 0; j < 3; ++j) {
+            if (rgb_pixel[j] > c_max) {
+                c_max = rgb_pixel[j];
+            }
+            if (rgb_pixel[j] < c_min) {
+                c_max = rgb_pixel[j];
+            }
+        }
+
+        /* Lightness */
+        hsl_pixel[2] = (c_min + c_max) / 2;
+
+        /* Saturation */
+        if (!c) {
+            hsl_pixel[1] = 0;
+        } else {
+            hsl_pixel[1] = c / (1 - fabs(hsl_pixel[2] * 2 - 1));
+        }
+
+        /* Hue */
+        if (!c) {
+            hsl_pixel[0] = 0;
+        } else {
+            if (rgb_pixel[0] == c_max) {
+                hsl_pixel[0] = 1.0 / 6 * (rgb_pixel[1] - rgb_pixel[2]) / c;
+            } else if (rgb_pixel[1] == c_max) {
+                hsl_pixel[0] = 1.0 / 6 * (2 + (rgb_pixel[2] - rgb_pixel[0]) / c);
+            } else if (rgb_pixel[2] == c_max) {
+                hsl_pixel[0] = 1.0 / 6 * (4 + (rgb_pixel[0] - rgb_pixel[1]) / c);
+            }
+        }
+    }
+
+    if (*dst == NULL) {
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
+    } else {
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
+    }
+
+    if (core_pixel_is_uint8(src_pixel_type)) {
+        free(src_data_cast);
+    }
+    g_object_unref(size);
+
+    return TRUE;
+}
+
+gboolean imgproc_to_RGB(CoreImage *src, CoreImage **dst) {
+    return FALSE;
+}
 
 gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
     gsize i;
@@ -12,14 +96,12 @@ gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
     gdouble *dst_data_cast, *src_data_cast;
     gpointer src_data, dst_data;
     gsize channel, area;
-    CoreColorSpace color_space;
     CorePixelType pixel_type;
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
 
     size = core_image_get_size(src);
     area = core_size_get_area(size);
-    color_space = core_image_get_color_space(src);
     pixel_type = core_image_get_pixel_type(src);
     channel = core_image_get_channel(src);
     src_data = core_image_get_data(src);
@@ -101,9 +183,9 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
         dst_data[i] = ((unsigned) (src_data[i] > threshold) ^ (unsigned) inverse) * 255.0;
     }
     if (*dst == NULL) {
-        core_image_new_with_data(dst_data, 1, CORE_PIXEL_D4, size, FALSE);
+        core_image_new_with_data(dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_U1, size, FALSE);
     } else {
-        core_image_assign_data(*dst, dst_data, 1, CORE_PIXEL_D4, size, FALSE);
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_U1, size, FALSE);
     }
     g_object_unref(size);
     g_object_unref(gray_src);
