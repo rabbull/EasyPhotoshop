@@ -87,7 +87,72 @@ gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
 }
 
 gboolean imgproc_to_RGB(CoreImage *src, CoreImage **dst) {
-    return FALSE;
+    CoreSize *size;
+    CoreColorSpace color_space;
+    CorePixelType pixel_type;
+    gdouble *src_data, *dst_data;
+    gdouble *hsl_pixel, *rgb_pixel;
+    gdouble c, h, h_ceil, x, m, r, g, b;
+    gsize i, area;
+
+    g_return_val_if_fail(src, FALSE);
+    color_space = core_image_get_color_space(src);
+    pixel_type = core_image_get_pixel_type(src);
+    g_return_val_if_fail(color_space == CORE_COLOR_SPACE_HSL, FALSE);
+    g_return_val_if_fail(pixel_type == CORE_PIXEL_D3, FALSE);
+    size = core_image_get_size(src);
+    area = core_size_get_area(size);
+    src_data = core_image_get_data(src);
+    dst_data = g_malloc(sizeof(gdouble) * area);
+    for (i = 0; i < area; ++i) {
+        hsl_pixel = src_data + i * 3;
+        rgb_pixel = dst_data + i * 3;
+
+        c = (1 - fabs(2 * hsl_pixel[2] - 1));
+        h = hsl_pixel[0] * 6.0;
+        x = c * (1 - fabs(h - floor(h / 2) * 2 - 1));
+        h_ceil = ceil(h) + DBL_EPSILON;
+        if (h_ceil >= 6) {
+            r = c;
+            g = 0;
+            b = x;
+        } else if (h_ceil >= 5) {
+            r = x;
+            g = 0;
+            b = c;
+        } else if (h_ceil >= 4) {
+            r = 0;
+            g = x;
+            b = c;
+        } else if (h_ceil >= 3) {
+            r = 0;
+            g = c;
+            b = x;
+        } else if (h_ceil >= 2) {
+            r = x;
+            g = c;
+            b = 0;
+        } else if (h_ceil >= 1) {
+            r = c;
+            g = x;
+            b = 0;
+        } else {
+            r = g = b = 0;
+        }
+        m = hsl_pixel[2] - c / 2;
+        rgb_pixel[0] = r + m;
+        rgb_pixel[1] = g + m;
+        rgb_pixel[2] = b + m;
+    }
+
+    if (*dst == NULL) {
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_RGB, CORE_PIXEL_D3, size, FALSE);
+    } else {
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_RGB, CORE_PIXEL_D3, size, FALSE);
+    }
+
+    g_object_unref(size);
+    return TRUE;
 }
 
 gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
