@@ -7,4 +7,7 @@
 
 #endif //EASYPHOTOSHOP_DITHER_H
 
+#include <core/image.h>
+#include <stdint.h>
+
 CoreImage *dither(CoreImage *coreImage, guint32 rank, guint32 flag);
