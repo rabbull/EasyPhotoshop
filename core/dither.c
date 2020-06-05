@@ -9,8 +9,8 @@
 
 #include <stdint.h>
 #include <core/image.h>
+#include <core/dither.h>
 
-CoreImage *dither(CoreImage *coreImage, guint32 rank, guint32 flag);
 guint8 **new_matrix(guint32 x, guint32 y);
 guint8 **new_dither_matrix(guint32 rank);
 guint8 **grow_dither_matrix(guint8 **dither_matrix, guint32 rank);
