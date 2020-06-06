@@ -19,5 +19,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS})
 
-add_library(EasyPhotoshopCore image.c size.c lena.c pixel.c color-space.c)
+add_library(EasyPhotoshopCore image.c size.c pixel.c color-space.c)
 target_link_libraries(EasyPhotoshopCore ${GLib_LIBRARIES} ${GObj_LIBRARIES})

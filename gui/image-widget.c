@@ -54,11 +54,15 @@ static void gui_image_widget_class_init(GuiImageWidgetClass *cls) {
 static void gui_image_widget_init(GuiImageWidget *self) {}
 
 /* CONSTRUCTORS */
+GuiImageWidget *gui_image_widget_new() {
+    return g_object_new(GUI_TYPE_IMAGE_WIDGET, NULL);
+}
+
 GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image) {
     GuiImageWidget *image_widget = NULL;
     g_return_val_if_fail(image != NULL, NULL);
     g_return_val_if_fail(!core_image_empty(image), NULL);
-    image_widget = g_object_new(GUI_TYPE_IMAGE_WIDGET, NULL);
+    image_widget = gui_image_widget_new();
     gui_image_widget_update_image(image_widget, image);
     return image_widget;
 }

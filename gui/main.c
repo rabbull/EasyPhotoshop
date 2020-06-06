@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <gui/image-widget.h>
-#include <core/lena.h>
 
 #include "main.h"
 #include "callbacks.h"
@@ -29,8 +28,8 @@ int gui_main(int argc, char **argv) {
     box_main = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(box_main));
 
-    image = core_image_new_lena();
-    gui_image_widget = GUI_IMAGE_WIDGET(gui_image_widget_new_from_core_image(image));
+    image = NULL;
+    gui_image_widget = GUI_IMAGE_WIDGET(gui_image_widget_new());
     gtk_container_add(GTK_CONTAINER(box_main), GTK_WIDGET(gui_image_widget));
 
     box_buttons = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);

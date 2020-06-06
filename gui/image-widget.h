@@ -20,6 +20,8 @@ struct _GuiImageWidgetClass {
     gpointer padding[12];
 };
 
+GuiImageWidget *gui_image_widget_new();
+
 GuiImageWidget *gui_image_widget_new_from_core_image(CoreImage *image);  
 
 gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image);
