@@ -43,7 +43,7 @@ CoreImage *core_image_new_open(const char *path);
 gboolean core_image_empty(CoreImage *self);
 
 /* CLONE */
-gboolean core_image_copy(CoreImage *self, CoreImage *another);
+gboolean core_image_copy(CoreImage *src, CoreImage *dst);
 
 /* GETTERS */
 CoreSize *core_image_get_size(CoreImage *self);

@@ -138,12 +138,12 @@ static void core_image_init(CoreImage *self) {
 
 /* PUBLIC METHODS */
 /* CLONE */
-gboolean core_image_copy(CoreImage *self, CoreImage *another) {
+gboolean core_image_copy(CoreImage *src, CoreImage *dst) {
     CoreImagePrivate *self_private, *another_private;
-    g_return_val_if_fail(self != NULL, FALSE);
-    g_return_val_if_fail(another != NULL, FALSE);
-    self_private = core_image_get_instance_private(self);
-    core_image_assign_data(another, self_private->data, self_private->color_space, self_private->pixel_type,
+    g_return_val_if_fail(src != NULL, FALSE);
+    g_return_val_if_fail(dst != NULL, FALSE);
+    self_private = core_image_get_instance_private(src);
+    core_image_assign_data(dst, self_private->data, self_private->color_space, self_private->pixel_type,
                            self_private->size, TRUE);
     return TRUE;
 }

@@ -7,27 +7,28 @@
 #include <cblas.h>
 #include <core/color-space.h>
 #include <imgproc/histogram-equalization.h>
+#include "color-convert.h"
 
 
 // ref: https://www.math.uci.edu/icamp/courses/math77c/demos/hist_eq.pdf
-static void histeq(double const *src, double *dst, size_t area, unsigned range) {
+static void
+histeq(double const *src, unsigned src_stride, double *dst, unsigned dst_stride, size_t area, unsigned range) {
     unsigned *cdf;
     size_t i;
     cdf = calloc(range, sizeof(unsigned));
     for (i = 0; i < area; ++i) {
-        cdf[(int) (src[i] * range)] += 1;
+        cdf[(int) (src[i * src_stride] * range)] += 1;
     }
     for (i = 1; i < range; ++i) {
         cdf[i] += cdf[i - 1];
     }
     for (i = 0; i < area; ++i) {
-        dst[i] = floor((double) (range - 1) * cdf[(int) (src[i] * range)] / area) / range;
+        dst[i * dst_stride] = floor((double) (range - 1) * cdf[(int) (src[i * src_stride] * range)] / area) / range;
     }
     free(cdf);
 }
 
-
-gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
+static gboolean histeq_grayscale(CoreImage *src, CoreImage **dst) {
     gdouble *src_data_cast = NULL;
     gdouble *dst_data_cast = NULL;
     gpointer src_data, dst_data;
@@ -40,7 +41,6 @@ gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
 
-    /* TODO: impl. for multiple channels */
     channel = core_image_get_channel(src);
     g_return_val_if_fail(channel == 1, FALSE);
 
@@ -67,7 +67,7 @@ gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
     dst_data_cast = g_malloc(sizeof(gdouble) * area);
 
     /* run the algorithm */
-    histeq(src_data_cast, dst_data_cast, area, 256);
+    histeq(src_data_cast, 1, dst_data_cast, 1, area, 256);
 
     /* cast back to uchar */
     if (core_pixel_is_double(pixel_type)) {
@@ -99,4 +99,49 @@ gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
     g_object_unref(size);
     g_object_unref(src);
     return TRUE;
+}
+
+
+static gboolean histeq_hsl(CoreImage *src, CoreImage **dst) {
+    gdouble *src_data, *dst_data;
+    CoreSize *size;
+    gsize area, block_size;
+
+    src_data = core_image_get_data(src);
+    size = core_image_get_size(src);
+    area = core_size_get_area(size);
+    block_size = area * 3 * sizeof(gdouble);
+    dst_data = g_malloc(block_size);
+    memcpy(src_data, dst_data, block_size);
+    histeq(src_data + 2, 3, dst_data + 2, 3, area, 255);
+
+    if (*dst == NULL) {
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
+    } else {
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
+    }
+
+    g_object_unref(size);
+}
+
+gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
+    CoreColorSpace src_color_space = core_image_get_color_space(src);
+    CoreImage *dummy = NULL;
+    gboolean ret;
+
+    if (src_color_space == CORE_COLOR_SPACE_GRAY_SCALE) {
+        ret = histeq_grayscale(src, dst);
+    } else {
+        if (src_color_space == CORE_COLOR_SPACE_RGB) {
+            imgproc_to_HSL(src, &dummy);
+        } else {
+            dummy = g_object_ref(src);
+        }
+        ret = histeq_hsl(dummy, dst);
+        g_object_unref(dummy);
+        if (src_color_space == CORE_COLOR_SPACE_RGB) {
+            imgproc_to_RGB(*dst, dst);
+        }
+    }
+    return ret;
 }
