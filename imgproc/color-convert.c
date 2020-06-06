@@ -12,10 +12,11 @@ gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
     CorePixelType src_pixel_type;
     gdouble *src_data_cast, *dst_data;
     gdouble *hsl_pixel, *rgb_pixel, c_max, c_min, c;
-    gsize i, j, area;
+    gsize i, j, area, block_size;
 
     size = core_image_get_size(src);
     area = core_size_get_area(size);
+    block_size = sizeof(gdouble) * area * 3;
     src_color_space = core_image_get_color_space(src);
     src_pixel_type = core_image_get_pixel_type(src);
 
@@ -24,7 +25,7 @@ gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
     if (core_pixel_is_double(src_pixel_type)) {
         src_data_cast = core_image_get_data(src);
     } else if (core_pixel_is_uint8(src_pixel_type)) {
-        src_data_cast = malloc(sizeof(gdouble) * core_size_get_area(size) * 3);
+        src_data_cast = malloc(block_size);
         for (i = 0; i < core_size_get_area(size) * 3; ++i) {
             src_data_cast[i] = ((guint8 *) core_image_get_data(src))[i] / core_pixel_get_range(src_pixel_type);
         }
@@ -32,7 +33,7 @@ gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
         return FALSE;
     }
 
-    dst_data = g_malloc(sizeof(gdouble) * core_size_get_area(size) * 3);
+    dst_data = g_malloc(block_size);
     for (i = 0; i < area; ++i) {
         hsl_pixel = dst_data + i * 3;
         rgb_pixel = src_data_cast + i * 3;

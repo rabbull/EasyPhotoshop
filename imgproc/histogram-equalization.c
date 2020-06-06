@@ -102,34 +102,26 @@ static gboolean histeq_grayscale(CoreImage *src, CoreImage **dst) {
 }
 
 
-//static gboolean histeq_hsl(CoreImage *src, CoreImage **dst) {
-//    gdouble *src_data, *dst_data;
-//    CoreSize *size;
-//    gsize area, block_size;
-//
-//    src_data = core_image_get_data(src);
-//    size = core_image_get_size(src);
-//    area = core_size_get_area(size);
-//    block_size = area * 3 * sizeof(gdouble);
-//    dst_data = g_malloc(block_size);
-//    memcpy(src_data, dst_data, block_size);
-//    histeq(src_data + 2, 3, dst_data + 2, 3, area, 255);
-//
-//    if (*dst == NULL) {
-//        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
-//    } else {
-//        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
-//    }
-//
-//    g_object_unref(size);
-//}
-
 static gboolean histeq_hsl(CoreImage *src, CoreImage **dst) {
+    gdouble *src_data, *dst_data;
+    CoreSize *size;
+    gsize area, block_size;
+
+    src_data = core_image_get_data(src);
+    size = core_image_get_size(src);
+    area = core_size_get_area(size);
+    block_size = area * 3 * sizeof(gdouble);
+    dst_data = g_malloc(block_size);
+    memcpy(dst_data, src_data, block_size);
+    histeq(src_data + 2, 3, dst_data + 2, 3, area, 255);
+
     if (*dst == NULL) {
-        *dst = core_image_new_clone(src);
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
     } else {
-        core_image_copy(src, *dst);
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_HSL, CORE_PIXEL_D3, size, FALSE);
     }
+
+    g_object_unref(size);
 }
 
 gboolean imgproc_histogram_equalization(CoreImage *src, CoreImage **dst) {
