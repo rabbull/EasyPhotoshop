@@ -29,11 +29,18 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_BIN;
     CorePixelType new_pixel_type = core_image_get_pixel_type(coreImage);
     guint8 **result_matrix;
+    guint8 *result_data;
     
     //get image info
     guint32 row = core_size_get_height(core_image_get_size(coreImage));
     guint32 col = core_size_get_width(core_image_get_size(coreImage));
-    guint8 **data = (guint8**)core_image_get_data(coreImage);
+    guint8 *image_data = (guint8*)core_image_get_data(coreImage);
+    guint8 **data = new_matrix(row, col);
+    for(guint32 i = 0, z = 0; i < row; i++){
+        for(guint32 j = 0; j < col; j++){
+            data[i][j] = image_data[z++];
+        }
+    }
 
     //step0:get dither-matrix
     guint8 **dither_matrix = new_dither_matrix(rank);
@@ -51,6 +58,7 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
     /*dither*/
     if(flag == 0){
         result_matrix=new_matrix(row * rank, col * rank);
+        result_data=(guint8 *)g_malloc(row*col*rank*rank);
         new_size = core_size_new_with_value(col*rank, row*rank);
         for(guint32 i = 0; i < row; i++){
             for(guint32 j = 0; j < col; j++){
@@ -65,11 +73,18 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
                 }
             }
         }
+        for(guint32 i = 0, z = 0; i < row*rank; i++){
+            for(guint32 j = 0; j < col*rank; j++){
+                result_data[z++] = result_matrix[i][j];
+            }
+        }
+        free_matrix(result_matrix, row*rank, col*rank);
     }
 
     /*ordered dither*/
     else{
         result_matrix=new_matrix(row , col);
+        result_data=(guint8 *)g_malloc(row*col);
         new_size = core_size_new_with_value(col, row);
         for(guint32 i = 0; i < row; i++){
             for(guint32 j = 0; j < col; j++){
@@ -80,13 +95,20 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
                 }
             }
         }
+        for(guint32 i = 0, z = 0; i < row; i++){
+            for(guint32 j = 0; j < col; j++){
+                result_data[z++] = result_matrix[i][j];
+            }
+        }
+        free_matrix(result_matrix, row, col);
     }
 
     //new CoreImage
-    CoreImage *new_core_image = core_image_new_with_data((gpointer)result_matrix, new_color_space, new_pixel_type,new_size,FALSE);
+    CoreImage *new_core_image = core_image_new_with_data((gpointer)result_data, new_color_space, new_pixel_type,new_size,FALSE);
 
     //free
     free_matrix(quantization_matrix,row,col);
+    free_matrix(data, row, col);
 
     return new_core_image;
 }
