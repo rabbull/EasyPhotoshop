@@ -32,6 +32,7 @@ void open_file(GtkWidget *widget, gpointer data) {
     GtkFileFilter *filter;
     char const *filename;
     CoreImage *image;
+    GFile *selected_file;
 
     dialog = gtk_file_chooser_dialog_new("open file", args->parent, GTK_FILE_CHOOSER_ACTION_OPEN, "Cancel",
                                          GTK_RESPONSE_CANCEL, "Open", GTK_RESPONSE_ACCEPT, NULL);
@@ -40,10 +41,12 @@ void open_file(GtkWidget *widget, gpointer data) {
     gtk_file_filter_add_pattern(filter, "*.bmp");
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
     if (gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
-        filename = gtk_file_chooser_get_uri(GTK_FILE_CHOOSER (dialog));
-        image = core_image_new_open(filename + 7);
+        selected_file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER (dialog));
+        filename = g_file_get_path(selected_file);
+        image = core_image_new_open(filename);
         gui_image_widget_update_image(args->gui_image_widget, image);
         g_object_unref(image);
+        g_object_unref(selected_file);
     }
     gtk_widget_destroy(dialog);
 }
