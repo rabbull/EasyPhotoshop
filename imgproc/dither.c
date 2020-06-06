@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <core/image.h>
-#include <core/dither.h>
+#include <imgproc/color-convert.h>
 
 guint8 **new_matrix(guint32 x, guint32 y);
 guint8 **new_dither_matrix(guint32 rank);
@@ -22,8 +22,8 @@ guint8 **get_unit_matrix(guint32 rank);
 */
 
 //rank should be 2^n, n>=1
-//flag 0 for dither and 1 for ordered-dither
-CoreImage *dither(CoreImage *coreImage, guint32 rank, guint32 flag){
+//flag 0 for dither and other for ordered-dither
+CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 flag){
     //initial
     CoreSize *new_size = NULL;
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_BIN;

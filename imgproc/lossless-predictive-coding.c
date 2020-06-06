@@ -2,11 +2,13 @@
 // Created by 唐继 on 2020/6/5.
 //
 
-#include <core/lossless-predictive-coding.h>
+#include <imgproc/lossless-predictive-coding.h>
 #include <core/image.h>
 #include <stdint.h>
 
-CoreImage *lossless_predictive_coding(CoreImage *image, guint32 rank, guint32 *coefficient){
+//rank for predictor's rank
+//coefficient for a  coefficient list of predictor
+CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, guint32 *coefficient){
     //get image info
     guint32 row = core_size_get_height(core_image_get_size(image));
     guint32 col = core_size_get_width(core_image_get_size(image));

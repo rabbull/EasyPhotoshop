@@ -10,4 +10,4 @@
 #include <stdint.h>
 #include <core/image.h>
 
-CoreImage *lossless_predictive_coding(CoreImage *image, guint32 rank, guint *coefficient);
+CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, guint *coefficient);
