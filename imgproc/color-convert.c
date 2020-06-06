@@ -70,6 +70,12 @@ gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
                 hsl_pixel[0] = 1.0 / 6 * (4 + (rgb_pixel[0] - rgb_pixel[1]) / c);
             }
         }
+        while (hsl_pixel[0] > 1) {
+            hsl_pixel[0] -= 1;
+        }
+        while (hsl_pixel[0] < 0) {
+            hsl_pixel[0] += 1;
+        }
     }
 
     if (*dst == NULL) {
@@ -103,36 +109,36 @@ gboolean imgproc_to_RGB(CoreImage *src, CoreImage **dst) {
     size = core_image_get_size(src);
     area = core_size_get_area(size);
     src_data = core_image_get_data(src);
-    dst_data = g_malloc(sizeof(gdouble) * area);
+    dst_data = g_malloc(sizeof(gdouble) * area * 3);
     for (i = 0; i < area; ++i) {
         hsl_pixel = src_data + i * 3;
         rgb_pixel = dst_data + i * 3;
 
-        c = (1 - fabs(2 * hsl_pixel[2] - 1));
+        c = (1 - fabs(2 * hsl_pixel[2] - 1)) * hsl_pixel[1];
         h = hsl_pixel[0] * 6.0;
         x = c * (1 - fabs(h - floor(h / 2) * 2 - 1));
-        h_ceil = ceil(h) + DBL_EPSILON;
-        if (h_ceil >= 6) {
+        h_ceil = floor(h);
+        if (h_ceil >= 5) {
             r = c;
             g = 0;
             b = x;
-        } else if (h_ceil >= 5) {
+        } else if (h_ceil >= 4) {
             r = x;
             g = 0;
             b = c;
-        } else if (h_ceil >= 4) {
+        } else if (h_ceil >= 3) {
             r = 0;
             g = x;
             b = c;
-        } else if (h_ceil >= 3) {
+        } else if (h_ceil >= 2) {
             r = 0;
             g = c;
             b = x;
-        } else if (h_ceil >= 2) {
+        } else if (h_ceil >= 1) {
             r = x;
             g = c;
             b = 0;
-        } else if (h_ceil >= 1) {
+        } else if (h_ceil >= 0) {
             r = c;
             g = x;
             b = 0;

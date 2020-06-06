@@ -10,7 +10,7 @@ for (i = 0; i < height; ++i) {  \
     for (j = 0; j < width; ++j) {  \
         for (k = 0; k < 3; ++k) {  \
         ((guint8 *) dst_data)[stride * i + j * 3 + k] =  \
-            (guint8) ((type *) src_data)[width * 3 * i + j * 3 + k] * mag_ratio;  \
+            (guint8) (((type *) src_data)[width * 3 * i + j * 3 + k] * mag_ratio);  \
         }  \
     }  \
 }
