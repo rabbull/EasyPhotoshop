@@ -16,8 +16,6 @@ gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst);
 
 gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble threshold, gboolean inverse);
 
-gboolean imgproc_to_binary_dither();
-
-gboolean imgproc_to_binary_ordered_dither();
+CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 flag);
 
 #endif //EASYPHOTOSHOP_COLOR_CONVERT_H
