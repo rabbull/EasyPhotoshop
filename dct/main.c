@@ -2,12 +2,10 @@
 // Created by intoblue on 2020/6/7.
 //
 
-#include "DCT.h"
+#include "imgproc/DCT.h"
 
 int main()
 {
-
-
     int imagelength=4;
     int imagewidth=4;
     int block_bit =4;
@@ -35,9 +33,6 @@ int main()
     }
     printf("dct finished\n\n");
 
-
-
-
     for (int i=0;i<imagelength;++i){//test IDCT
 
         for(int j=0;j<imagewidth;++j)
@@ -59,7 +54,4 @@ int main()
 
     }
     printf("dct2 finished");
-
-
-
 }

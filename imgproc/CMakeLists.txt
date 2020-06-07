@@ -37,5 +37,5 @@ include_directories(${CMAKE_SOURCE_DIR})
 include_directories(${GLib_INCLUDE_DIRS} ${GObj_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS})
 link_directories(${GLib_LIBRARY_DIRS} ${GObj_LIBRARY_DIRS} ${BLAS_LIBRARY_DIRS})
 
-add_library(EasyPhotoshopImageProcess histogram-equalization.c color-convert.c)
+add_library(EasyPhotoshopImageProcess histogram-equalization.c color-convert.c DCT.c)
 target_link_libraries(EasyPhotoshopImageProcess m ${GLib_LIBRARIES} ${GObj_LIBRARIES} ${BLAS_LIBRARIES})
