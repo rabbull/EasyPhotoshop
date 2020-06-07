@@ -1,38 +1,75 @@
-#include <stdlib.h>
+//
+// Created by karl on 7/6/2020.
+//
+
+#include "discrete-cosine-transform.h"
 #include <math.h>
-#include <stdio.h>
 
-#define M_pi  3.14159262
+static double **do_dct(int length, int width, int block_bit, double **image);
 
+static double **do_idct(int length, int width, int block_bit, double **dct);
 
-double **getImage(int length, int width) {
+static double **do_dct_2(double **dct, int length, int width, int block_bit);
 
-    double **image;
-    image = (double **) malloc(sizeof(double *) * length);
-    for (int i = 0; i < width; i++) {
-        image[i] = (double *) malloc(sizeof(double) * width);
+CoreImage *imgproc_dct(CoreImage *image, gint block_bit) {
+    CoreSize *size;
+    gpointer img_data;
+    int i, j;
+    int length, width;
+    double **img_data_cast = NULL;
+    double **dct;
+    CoreColorSpace color_space;
+    CorePixelType pixel_type;
 
+    color_space = core_image_get_color_space(image);
+    g_return_val_if_fail(color_space == CORE_COLOR_SPACE_RGB, NULL);
+
+    pixel_type = core_image_get_pixel_type(image);
+    size = core_image_get_size(image);
+    length = core_size_get_height(size);
+    width = core_size_get_width(size);
+    img_data = core_image_get_data(image);
+
+    img_data_cast = malloc(sizeof(double *) * length);
+    for (i = 0; i < length; ++i) {
+        img_data_cast[i] = malloc(sizeof(double) * width);
     }
 
-    double copy[4][4] = {{5, 3, 0, 2},
-                         {1, 7, 8, 3},
-                         {4, 2, 2, 2},
-                         {8, 5, 2, 1}};
-
-    for (int i = 0; i < length; i++) {
-        for (int j = 0; j < width; j++) {
-            image[i][j] = copy[i][j];
-
+    if (pixel_type == CORE_PIXEL_D3) {
+        for (i = 0; i < length; ++i) {
+            for (j = 0; j < width; ++j) {
+                img_data_cast[i][j] = ((gdouble *) img_data)[i * width + j] * 255.0;
+            }
         }
+    } else if (pixel_type == CORE_PIXEL_U3) {
+        for (i = 0; i < length; ++i) {
+            for (j = 0; j < width; ++j) {
+                img_data_cast[i][j] = ((gdouble *) img_data)[i * width + j] * 255.0;
+            }
+        }
+    } else {
+        goto fail;
     }
 
-    return image;
+    dct = do_dct(length, width, block_bit, img_data_cast);
+
+    /* TODO: convert dct to CoreImage; free dct; */
+
+    fail:
+    if (img_data_cast) {
+        for (i = 0; i < length; ++i) {
+            free(img_data_cast[i]);
+        }
+        free(img_data_cast);
+    }
+    return NULL;
 }
 
+CoreImage *imgproc_dct_drop(CoreImage *image, gdouble drop_rate) {}
 
-double **DO_DCT(int length, int width, int block_bit, double **image) {
+CoreImage *imgproc_idct(CoreImage *dct_image, gint block_bit, gdouble drop_rate) {}
 
-    //double **image=getImage(length,width);//获取图像信息
+static double **do_dct(int length, int width, int block_bit, double **image) {
 
     int blockSize = block_bit;
     int blockNumberSize = length / block_bit;
@@ -76,12 +113,11 @@ double **DO_DCT(int length, int width, int block_bit, double **image) {
                     double ans = 0;
                     for (int i = 0; i < blockSize; i++)
                         for (int j = 0; j < blockSize; j++)
-                            ans += a[i][j] * cos((2 * i + 1) * M_pi * p / (2 * blockSize)) *
-                                   cos((2 * j + 1) * M_pi * q / (2 * blockSize));
+                            ans += a[i][j] * cos((2 * i + 1) * M_PI * p / (2 * blockSize)) *
+                                   cos((2 * j + 1) * M_PI * q / (2 * blockSize));
                     m[p][q] = alpha * beta * ans;
                 }
             }
-
 
             for (int k = 0; k < blockSize; k++) {
                 for (int l = 0; l < blockSize; l++) {
@@ -91,11 +127,10 @@ double **DO_DCT(int length, int width, int block_bit, double **image) {
             }
         }
     }
-    printf("success in DCT\n");
     return DCTimage;
 }
 
-double **DO_IDCT(int length, int width, int block_bit, double **dct) {
+static double **do_idct(int length, int width, int block_bit, double **dct) {
 
     //int **image=getImage(length,width);
 
@@ -116,11 +151,6 @@ double **DO_IDCT(int length, int width, int block_bit, double **dct) {
     for (int i = 0; i < block_bit; i++) {
         a[i] = (double *) malloc(sizeof(double *) * block_bit);
     }
-
-
-    //dct=DO_DCT(length,width,block_bit);
-
-
 
     for (int i = 0; i < blockNumberSize; ++i) {       //图像分块
         for (int j = 0; j < blockNumberSize; ++j) {
@@ -163,20 +193,17 @@ double **DO_IDCT(int length, int width, int block_bit, double **dct) {
             }
         }
     }
-    printf("success in IDCT!\n");
     return IDCTimage;
 }
 
-double **DODCT2(double **image, int length, int width, int block_bit) {
-    printf("\nthis is half dct\n");
-
-    double **DCT2image = (double **) malloc(sizeof(double *) * length);//DCT2分配空间
+static double **do_dct_2(double **dct, int length, int width, int block_bit) {
+    double **DCT2image = (double **) malloc(sizeof(double *) * length);
     for (int i = 0; i < length; i++) {
         DCT2image[i] = (double *) malloc(sizeof(double) * width);
     }
     for (int i = 0; i < length; ++i) {
         for (int j = 0; j < width; ++j) {
-            DCT2image[i][j] = image[i][j];
+            DCT2image[i][j] = dct[i][j];
         }
     }
     for (int i = 0; i < length; ++i) {
@@ -187,12 +214,11 @@ double **DODCT2(double **image, int length, int width, int block_bit) {
             if (((i + j + 1) == length) && ((i + 1) > (length / 2))) {
                 DCT2image[i][j] = 0;
             }
-
         }
     }
 
     double **IDCT2image;
-    IDCT2image = DO_IDCT(length, width, block_bit, DCT2image);
+    IDCT2image = do_idct(length, width, block_bit, DCT2image);
 
     return IDCT2image;
 }
