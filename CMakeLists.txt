@@ -21,5 +21,5 @@ message(STATUS "Configuring main program..")
 
 include_directories(${CMAKE_SOURCE_DIR})
 
-add_executable(EasyPhotoshop main.c imgproc/uniform-quantization.c )
+add_executable(EasyPhotoshop main.c)
 target_link_libraries(EasyPhotoshop EasyPhotoshopCore EasyPhotoshopImageProcess EasyPhotoshopGUI EasyPhotoshopFileIO)
