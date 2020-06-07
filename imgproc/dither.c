@@ -1,11 +1,6 @@
 //
 // Created by 唐继 on 2020/6/4.
 //
-// version 1.0 实现了dither
-// version 1.1 修复了dither中result_matrix赋值时下标计算错误的bug
-// version 2.0 实现了ordered-dither
-// version 2.1 修改了dither函数，合并了两种dither,减少了代码量
-//
 
 #include <core/image.h>
 #include <imgproc/color-convert.h>
