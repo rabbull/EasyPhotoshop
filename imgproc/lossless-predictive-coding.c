@@ -21,12 +21,12 @@ CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gd
         }
     }
     //initial
-    CoreSize *new_size = core_size_new_with_value(col, row);
+    CoreSize *new_size = core_size_new_with_value(row, col);
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_GRAY_SCALE;
-    CorePixelType new_pixel_type = core_image_get_pixel_type(image);
-    guint8 **result_data = (guint8 **) g_malloc(sizeof(guint8 *) * row);
+    CorePixelType new_pixel_type = CORE_PIXEL_U1;
+    gdouble **result_data = (gdouble **) g_malloc(sizeof(gdouble *) * row);
     for (guint32 i = 0; i < row; i++) {
-        result_data[i] = (guint8 *) g_malloc(sizeof(guint8) * col);
+        result_data[i] = (gdouble *) g_malloc(sizeof(gdouble) * col);
     }
 
     //预测编码
@@ -35,29 +35,54 @@ CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gd
     for (guint32 i = 0; i < row; i++) {
         for (guint32 j = 0; j < col; j++) {
             if (j == 0) {
-                result_data[i][j] = data[i][j];
+                result_data[i][j] = (gdouble)data[i][j];
             } else if (j < rank) {
-                result_data[i][j] = data[i][j] - data[i][0];
+                result_data[i][j] = data[i][j] - (gdouble)data[i][0];
             } else {
                 for (x = rank, y = 0; x >= 1 && y < rank; x--, y++) {
-                    data_pre += data[i][j - x] * coefficient[y];
+                    data_pre = data_pre +((gdouble)data[i][j - x] * coefficient[y]);
                 }
-                result_data[i][j] = data[i][j] - (guint8) data_pre;
+                result_data[i][j] = data[i][j] - (gdouble) data_pre;
+                data_pre = 0.0;
             }
         }
     }
 
-    //处理负值，映射到0-255
+    //映射到0-255
     for (guint32 i = 0; i < row; i++) {
         for (guint32 j = 0; j < col; j++) {
-            result_data[i][j] = (result_data[i][j] + 255) / 2;
+            result_data[i][j] = (result_data[i][j] + 255)/2;
         }
     }
 
-    guint8 *result_matrix = (guint8 *) g_malloc(row * col);
+
+   //反映射
+    for (guint32 i = 0; i < row; i++) {
+        for (guint32 j = 0; j < col; j++) {
+            result_data[i][j] = result_data[i][j] *2 - 255;
+        }
+    }
+    //逆向
+    for (guint32 i = 0; i < row; i++) {
+        for (guint32 j = 0; j < col; j++) {
+            if (j == 0) {
+                result_data[i][j] = result_data[i][j];
+            } else if (j < rank) {
+                result_data[i][j] = result_data[i][j] + result_data[i][0];
+            } else {
+                for (x = rank, y = 0; x >= 1 && y < rank; x--, y++) {
+                    data_pre = data_pre + (gdouble)data[i][j - x] * coefficient[y];
+                }
+                result_data[i][j] = result_data[i][j] + data_pre;
+                data_pre = 0.0;
+            }
+        }
+    }
+
+    guint8 *result_matrix = (guint8 *) g_malloc(row * col * sizeof(guint8));
     for (guint32 i = 0, z = 0; i < row; i++) {
         for (guint32 j = 0; j < col; j++) {
-            result_matrix[z++] = result_data[i][j];
+            result_matrix[z++] = (guint8)result_data[i][j];
         }
         g_free(result_data[i]);
     }
