@@ -93,14 +93,10 @@ void ordered_dither(GtkWidget *widget, gpointer data) {
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     CoreImage *dithered = NULL;
-    char const *argument_names[] = {"Rank"};
-    char **requested_arguments;
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         return;
     }
-    requested_arguments = request_arguments("Ordered Dither", args->parent, 1, argument_names);
-    guint rank = strtol(requested_arguments[0], NULL, 10);
-    dithered = imgproc_to_binary_dither(image, rank, 1);
+    dithered = imgproc_to_binary_dither(image, 0, 1);
     gui_image_widget_update_image(img_widget, dithered);
     g_object_unref(image);
 }

@@ -51,7 +51,7 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
     if (flag == 0) {
         result_matrix = new_matrix(row * rank, col * rank);
         result_data = (guint8 *) g_malloc(row * col * rank * rank);
-        new_size = core_size_new_with_value(col * rank, row * rank);
+        new_size = core_size_new_with_value(row * rank, col * rank);
         for (guint32 i = 0; i < row; i++) {
             for (guint32 j = 0; j < col; j++) {
                 for (guint32 x = 0; x < rank; x++) {
@@ -77,7 +77,7 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
     else {
         result_matrix = new_matrix(row, col);
         result_data = (guint8 *) g_malloc(row * col);
-        new_size = core_size_new_with_value(col, row);
+        new_size = core_size_new_with_value(row, col);
         for (guint32 i = 0; i < row; i++) {
             for (guint32 j = 0; j < col; j++) {
                 if (quantization_matrix[i][j] > dither_matrix[i % rank][j % rank]) {
