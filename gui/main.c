@@ -11,12 +11,13 @@
 
 int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
-    GtkWidget *button_histeq, *button_grayscale, *button_open;
+    GtkWidget *button_histeq, *button_grayscale, *button_lpc, *button_open;
     GuiImageWidget *gui_image_widget;
     CoreImage *image;
 
     struct grayscale_args grayscale_args;
     struct histeq_args histeq_args;
+    struct lpc_args lpc_args;
     struct open_file_args open_file_args;
 
     gtk_init(&argc, &argv);
@@ -44,6 +45,12 @@ int gui_main(int argc, char **argv) {
     histeq_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_histeq), "clicked", G_CALLBACK(histeq), &histeq_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_histeq));
+
+    button_lpc = gtk_button_new_with_label("lpc");
+    lpc_args.parent = GTK_WINDOW(window);
+    lpc_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_lpc), "clicked", G_CALLBACK(lpc), &lpc_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_lpc));
 
     button_open = gtk_button_new_with_label("open file");
     open_file_args.parent = GTK_WINDOW(window);

@@ -7,10 +7,11 @@
 
 #include <imgproc/color-convert.h>
 #include <imgproc/histogram-equalization.h>
+#include <imgproc/lossless-predictive-coding.h>
 
 void grayscale(GtkWidget *widget, gpointer data) {
     struct grayscale_args *args = data;
-    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(args->gui_image_widget);
+    GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     imgproc_to_grayscale(image, &image);
     gui_image_widget_update_image(img_widget, image);
@@ -19,11 +20,82 @@ void grayscale(GtkWidget *widget, gpointer data) {
 
 void histeq(GtkWidget *widget, gpointer data) {
     struct histeq_args *args = data;
-    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(args->gui_image_widget);
+    GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     imgproc_histogram_equalization(image, &image);
     gui_image_widget_update_image(img_widget, image);
     g_object_unref(image);
+}
+
+void lpc(GtkWidget *widget, gpointer data) {
+    struct lpc_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *coded_image;
+    GtkWidget *dialog;
+    GtkWidget *label_rank, *label_coef;
+    GtkWidget *entry_rank, *entry_coef;
+    GtkWidget *grid_layout;
+    guint32 rank;
+    gdouble *coef;
+    gdouble sum;
+    char *coef_text;
+    guint32 i;
+
+    dialog = gtk_dialog_new_with_buttons("Rank and Coefficients", args->parent, GTK_DIALOG_MODAL, "Confirm",
+                                         GTK_RESPONSE_ACCEPT, "Cancel", GTK_RESPONSE_CANCEL, NULL);
+    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+
+    label_rank = gtk_label_new("Rank");
+    label_coef = gtk_label_new("Coefficients");
+    entry_rank = gtk_entry_new();
+    entry_coef = gtk_entry_new();
+
+    grid_layout = gtk_grid_new();
+    gtk_grid_attach(GTK_GRID(grid_layout), label_rank, 0, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid_layout), label_coef, 0, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid_layout), entry_rank, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid_layout), entry_coef, 1, 1, 1, 1);
+
+    gtk_grid_set_column_spacing(GTK_GRID(grid_layout), 5);
+    gtk_grid_set_row_spacing(GTK_GRID(grid_layout), 5);
+
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid_layout, 0, 1, 0);
+    gtk_widget_show_all(dialog);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        rank = strtol(gtk_entry_get_text(GTK_ENTRY(entry_rank)), NULL, 10);
+        coef_text = calloc(strlen(gtk_entry_get_text(GTK_ENTRY(entry_rank))) + 1, 1);
+        strcpy(coef_text, gtk_entry_get_text(GTK_ENTRY(entry_coef)));
+        coef = malloc(sizeof(gdouble) * rank);
+        sum = 0;
+        for (i = 0; i < rank; ++i) {
+            coef[i] = strtod(coef_text, &coef_text);
+            if (coef[i] <= 0) {
+                goto fail;
+            }
+            sum += coef[i];
+            while (*coef_text == ' ') {
+                coef_text += 1;
+            }
+        }
+        if (sum != 1) {
+            goto fail;
+        }
+        coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
+        gui_image_widget_update_image(img_widget, coded_image);
+        g_object_unref(image);
+        g_object_unref(coded_image);
+
+        free(coef_text);
+        free(coef);
+    }
+    gtk_widget_destroy(dialog);
+    return;
+
+    fail:
+    gtk_widget_destroy(dialog);
+    free(coef_text);
+    free(coef);
 }
 
 void open_file(GtkWidget *widget, gpointer data) {
