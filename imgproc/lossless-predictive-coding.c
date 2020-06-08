@@ -8,8 +8,8 @@
 guint8 **new_matrix(guint32 x, guint32 y);
 
 //rank for predictor's rank
-//coefficient for a  coefficient list of predictor
-CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gdouble *const coefficient) {
+//coefficient for a coefficient list of predictor
+CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gdouble const *const coefficient) {
     //get image info
     guint32 row = core_size_get_height(core_image_get_size(image));
     guint32 col = core_size_get_width(core_image_get_size(image));
