@@ -25,9 +25,9 @@ CoreImage* uniform_quantization(CoreImage* image, guint32 ratio) {
     CoreSize* new_size = core_size_new_with_value(col, row);
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_GRAY_SCALE;
     CorePixelType new_pixel_type = core_image_get_pixel_type(image);
-    guint8** result_data = (guint8**)g_malloc(row);
+    guint8** result_data = (guint8**)g_malloc(sizeof(guint8*) * row);
     for (guint32 i = 0; i < row; i++) {
-        result_data[i] = (guint8*)g_malloc(col);
+        result_data[i] = (guint8*)g_malloc(sizeof(guint8) * col);
     }
 
     //均匀量化
@@ -44,7 +44,7 @@ CoreImage* uniform_quantization(CoreImage* image, guint32 ratio) {
         }
     }
 
-    guint8 *result_matrix = (guint8 *)g_malloc(row * col);
+    guint8 *result_matrix = (guint8 *)g_malloc(sizeof(guint8) * (row * col));
     for(guint32 i = 0, z = 0; i < row; i++){
         for(guint32 j = 0; j < col; j++){
             result_matrix[z++] = result_data[i][j];
@@ -60,9 +60,9 @@ CoreImage* uniform_quantization(CoreImage* image, guint32 ratio) {
 
 guint8 **new_matrix(guint32 x, guint32 y){
     guint8 **matrix;
-    matrix = (guint8**)g_malloc(x);
+    matrix = (guint8**)g_malloc(sizeof(guint8*) * x);
     for(guint32 i = 0; i < x; i++){
-        matrix[i] = (guint8*)g_malloc(y);
+        matrix[i] = (guint8*)g_malloc(sizeof(guint8) * y);
     }
     return matrix;
 }
