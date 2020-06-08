@@ -13,7 +13,6 @@ int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
     GtkWidget *button_histeq, *button_grayscale, *button_uniform, *button_open, *button_save;
     GuiImageWidget *gui_image_widget;
-    CoreImage *image;
 
     struct grayscale_args grayscale_args;
     struct histeq_args histeq_args;
