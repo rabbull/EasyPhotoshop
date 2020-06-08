@@ -27,6 +27,82 @@ void histeq(GtkWidget *widget, gpointer data) {
     g_object_unref(image);
 }
 
+static char **request_arguments(char const *title, GtkWindow *parent, size_t argc, char const *const *names) {
+    char **args = NULL;
+    char const *arg = NULL;
+    size_t i;
+    GtkWidget *dialog;
+    GtkWidget *grid;
+    GtkWidget **labels;
+    GtkWidget **entries;
+    dialog = gtk_dialog_new_with_buttons(title, parent, GTK_DIALOG_MODAL,
+                                         "Confirm", GTK_RESPONSE_ACCEPT,
+                                         "Cancel", GTK_RESPONSE_CANCEL, NULL);
+    grid = gtk_grid_new();
+    labels = malloc(sizeof(gpointer) * argc);
+    entries = malloc(sizeof(gpointer) * argc);
+    for (i = 0; i < argc; ++i) {
+        labels[i] = gtk_label_new(names[i]);
+        entries[i] = gtk_entry_new();
+        gtk_grid_attach(GTK_GRID(grid), labels[i], 0, i, 1, 1);
+        gtk_grid_attach(GTK_GRID(grid), entries[i], 1, i, 1, 1);
+    }
+    gtk_grid_set_column_spacing(GTK_GRID(grid), 5);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), 5);
+    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid, 0, 1, 0);
+    gtk_widget_show_all(dialog);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        args = g_malloc(sizeof(char const *) * argc);
+        for (i = 0; i < argc; ++i) {
+            arg = gtk_entry_get_text(GTK_ENTRY(entries[i]));
+            args[i] = g_malloc(strlen(arg) + 1);
+            strcpy(args[i], arg);
+        }
+    }
+    gtk_widget_destroy(dialog);
+    free(labels);
+    free(entries);
+    return args;
+}
+
+void dither(GtkWidget *widget, gpointer data) {
+    struct dither_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *dithered = NULL;
+    char const *argument_names[] = {"Rank"};
+    char **requested_arguments;
+    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+        return;
+    }
+    requested_arguments = request_arguments("Dither", args->parent, 1, argument_names);
+    if (requested_arguments == NULL) {
+        return;
+    }
+    guint rank = strtol(requested_arguments[0], NULL, 10);
+    dithered = imgproc_to_binary_dither(image, rank, 1);
+    gui_image_widget_update_image(img_widget, dithered);
+    g_object_unref(image);
+}
+
+void ordered_dither(GtkWidget *widget, gpointer data) {
+    struct dither_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *dithered = NULL;
+    char const *argument_names[] = {"Rank"};
+    char **requested_arguments;
+    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+        return;
+    }
+    requested_arguments = request_arguments("Ordered Dither", args->parent, 1, argument_names);
+    guint rank = strtol(requested_arguments[0], NULL, 10);
+    dithered = imgproc_to_binary_dither(image, rank, 1);
+    gui_image_widget_update_image(img_widget, dithered);
+    g_object_unref(image);
+}
+
 void lpc(GtkWidget *widget, gpointer data) {
     struct lpc_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;

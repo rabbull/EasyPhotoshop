@@ -5,7 +5,7 @@
 #include <core/image.h>
 #include "lossless-predictive-coding.h"
 
-guint8 **new_matrix(guint32 x, guint32 y);
+static guint8 **new_matrix(guint32 x, guint32 y);
 
 //rank for predictor's rank
 //coefficient for a coefficient list of predictor
@@ -26,7 +26,7 @@ CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gd
     CorePixelType new_pixel_type = core_image_get_pixel_type(image);
     guint8 **result_data = (guint8 **) g_malloc(sizeof(guint8 *) * row);
     for (guint32 i = 0; i < row; i++) {
-        result_data[i] = (guint8 *) g_malloc(col);
+        result_data[i] = (guint8 *) g_malloc(sizeof(guint8) * col);
     }
 
     //预测编码
@@ -70,11 +70,11 @@ CoreImage *imgproc_lossless_predictive_coding(CoreImage *image, guint32 rank, gd
     return new_core_image;
 }
 
-guint8 **new_matrix(guint32 x, guint32 y) {
+static guint8 **new_matrix(guint32 x, guint32 y) {
     guint8 **matrix;
     matrix = (guint8 **) g_malloc(x * sizeof(guint8 *));
     for (guint32 i = 0; i < x; i++) {
-        matrix[i] = (guint8 *) g_malloc(y);
+        matrix[i] = (guint8 *) g_malloc(sizeof(guint8) * y);
     }
     return matrix;
 }

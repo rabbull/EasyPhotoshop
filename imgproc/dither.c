@@ -5,7 +5,7 @@
 #include <core/image.h>
 #include <imgproc/color-convert.h>
 
-guint8 **new_matrix(guint32 x, guint32 y);
+static guint8 **new_matrix(guint32 x, guint32 y);
 
 guint8 **new_dither_matrix(guint32 rank);
 
@@ -106,9 +106,9 @@ CoreImage *imgproc_to_binary_dither(CoreImage *coreImage, guint32 rank, guint32 
     return new_core_image;
 }
 
-guint8 **new_matrix(guint32 x, guint32 y) {
+static guint8 **new_matrix(guint32 x, guint32 y) {
     guint8 **matrix;
-    matrix = (guint8 **) g_malloc(x);
+    matrix = (guint8 **) g_malloc(sizeof(guint8 *) * x);
     for (guint32 i = 0; i < x; i++) {
         matrix[i] = (guint8 *) g_malloc(y);
     }

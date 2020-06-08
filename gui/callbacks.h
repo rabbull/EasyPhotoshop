@@ -20,6 +20,15 @@ struct histeq_args {
 
 void histeq(GtkWidget *widget, gpointer data);
 
+struct dither_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void dither(GtkWidget *widget, gpointer data);
+
+void ordered_dither(GtkWidget *widget, gpointer data);
+
 struct lpc_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
