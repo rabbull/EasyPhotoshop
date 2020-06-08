@@ -50,3 +50,19 @@ void open_file(GtkWidget *widget, gpointer data) {
     }
     gtk_widget_destroy(dialog);
 }
+
+void save_file(GtkWidget *widget, gpointer data) {
+    struct save_file_args *args = data;
+    GtkWidget *dialog;
+    char const *file;
+    GuiImageWidget *img_widget = GUI_IMAGE_WIDGET(args->gui_image_widget);
+
+    dialog = gtk_file_chooser_dialog_new("save file", args->parent, GTK_FILE_CHOOSER_ACTION_SAVE, "Cancel",
+                                         GTK_RESPONSE_CANCEL, "Save", GTK_RESPONSE_ACCEPT, NULL);
+
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        core_image_save(gui_image_widget_get_image(img_widget), file, CORE_IMAGE_SAVE_METHOD_BMP);
+    }
+    gtk_widget_destroy(dialog);
+}

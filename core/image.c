@@ -264,7 +264,7 @@ gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace c
 
 char const *CORE_IMAGE_SAVE_METHOD_BMP = "BMP";
 
-gboolean core_image_save(CoreImage *self, GString *path, char const *method) {
+gboolean core_image_save(CoreImage *self, char const *path, char const *method) {
     FileIOOutputFormatTable *table = fileio_output_format_table_get_instance();
     output_method_t output_method = fileio_output_format_table_get_output_method(table, method);
     if (output_method == NULL) {

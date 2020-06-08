@@ -68,7 +68,7 @@ gboolean core_image_assign_data(CoreImage *self, gpointer data, CoreColorSpace c
 
 extern char const *CORE_IMAGE_SAVE_METHOD_BMP;
 
-gboolean core_image_save(CoreImage *self, GString *path, char const *method);
+gboolean core_image_save(CoreImage *self, char const *path, char const *method);
 
 G_END_DECLS
 

@@ -11,13 +11,13 @@
 
 int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
-    GtkWidget *button_histeq, *button_grayscale, *button_open;
+    GtkWidget *button_histeq, *button_grayscale, *button_open, *button_save;
     GuiImageWidget *gui_image_widget;
-    CoreImage *image;
 
     struct grayscale_args grayscale_args;
     struct histeq_args histeq_args;
     struct open_file_args open_file_args;
+    struct save_file_args save_file_args;
 
     gtk_init(&argc, &argv);
 
@@ -28,7 +28,6 @@ int gui_main(int argc, char **argv) {
     box_main = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1);
     gtk_container_add(GTK_CONTAINER(window), GTK_WIDGET(box_main));
 
-    image = NULL;
     gui_image_widget = GUI_IMAGE_WIDGET(gui_image_widget_new());
     gtk_container_add(GTK_CONTAINER(box_main), GTK_WIDGET(gui_image_widget));
 
@@ -51,12 +50,15 @@ int gui_main(int argc, char **argv) {
     g_signal_connect(G_OBJECT(button_open), "clicked", G_CALLBACK(open_file), &open_file_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_open));
 
-    gtk_widget_show_all(window);
+    button_save = gtk_button_new_with_label("save file");
+    save_file_args.parent = GTK_WINDOW(window);
+    save_file_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_save), "clicked", G_CALLBACK(save_file), &save_file_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_save));
 
+    gtk_widget_show_all(window);
     g_signal_connect_swapped(window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
     gtk_main();
-
-    g_object_unref(image);
 
     return EXIT_SUCCESS;
 }
