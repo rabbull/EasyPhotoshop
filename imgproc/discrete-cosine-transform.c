@@ -70,10 +70,9 @@ CoreImage *imgproc_dct_drop(CoreImage *image, gdouble drop_rate) {}
 CoreImage *imgproc_idct(CoreImage *dct_image, gint block_bit, gdouble drop_rate) {}
 
 static double **do_dct(int length, int width, int block_bit, double **image) {
-
     int blockSize = block_bit;
-    int blockNumberSize = length / block_bit;
-
+    int blockNumberSize1 = length / block_bit;
+    int blockNumberSize2 = width / block_bit;
     double **DCTimage = (double **) malloc(sizeof(double *) * length);//DCT
     for (int i = 0; i < length; i++) {
         DCTimage[i] = (double *) malloc(sizeof(double *) * width);
@@ -94,9 +93,8 @@ static double **do_dct(int length, int width, int block_bit, double **image) {
         a[i] = (int *) malloc(sizeof(int *) * block_bit);
     }
 
-
-    for (int i = 0; i < blockNumberSize; ++i) {                                //图像分块
-        for (int j = 0; j < blockNumberSize; ++j) {
+    for (int i = 0; i < blockNumberSize1; ++i) {                                //图像分块
+        for (int j = 0; j < blockNumberSize2; ++j) {
             for (int k = 0; k < blockSize; k++) {
                 for (int l = 0; l < blockSize; l++) {
                     a[k][l] = image[i * blockSize + k][j * blockSize + l];
@@ -119,23 +117,21 @@ static double **do_dct(int length, int width, int block_bit, double **image) {
                 }
             }
 
+
             for (int k = 0; k < blockSize; k++) {
                 for (int l = 0; l < blockSize; l++) {
                     DCTimage[i * blockSize + k][j * blockSize + l] = m[k][l];
-                    //SCHimage[i*blockSize+k][j*blockSize+k]=n[k][l];
                 }
             }
         }
     }
     return DCTimage;
-}
+}//输入图像的长、宽、要求分块的大小、原始图像矩阵，返回DCT矩阵
 
 static double **do_idct(int length, int width, int block_bit, double **dct) {
-
-    //int **image=getImage(length,width);
-
     int blockSize = block_bit;
-    int blockNumberSize = length / block_bit;
+    int blockNumberSize1 = length / block_bit;
+    int blockNumberSize2 = width / block_bit;
 
     double **IDCTimage = (double **) malloc(sizeof(double *) * length);//IDCT
     for (int i = 0; i < length; i++) {
@@ -152,8 +148,15 @@ static double **do_idct(int length, int width, int block_bit, double **dct) {
         a[i] = (double *) malloc(sizeof(double *) * block_bit);
     }
 
-    for (int i = 0; i < blockNumberSize; ++i) {       //图像分块
-        for (int j = 0; j < blockNumberSize; ++j) {
+    for (int i = 0; i < length; ++i) {
+        for (int j = 0; j < width; ++j) {
+            IDCTimage[i][j] = dct[i][j];
+        }
+
+    }
+
+    for (int i = 0; i < blockNumberSize1; ++i) {       //图像分块
+        for (int j = 0; j < blockNumberSize2; ++j) {
             for (int k = 0; k < blockSize; k++) {
                 for (int l = 0; l < blockSize; l++) {
                     m[k][l] = dct[i * blockSize + k][j * blockSize + l];
@@ -162,29 +165,22 @@ static double **do_idct(int length, int width, int block_bit, double **dct) {
             }
             //IDCT
             double alpha, beta;
-
             for (int i = 0; i < blockSize; i++) {
                 for (int j = 0; j < blockSize; j++) {
-                    double ans = 0;
+                    double tmp = 0.0;
                     for (int p = 0; p < blockSize; p++)
                         for (int q = 0; q < blockSize; q++) {
-                            if (p == 0) {
-                                alpha = sqrt(1.0 / blockSize);
-                            } else {
-                                alpha = sqrt(2.0 / blockSize);
-                            }
-                            if (q == 0) {
-                                beta = sqrt(1.0 / blockSize);
-                            } else {
-                                beta = sqrt(2.0 / blockSize);
-                            }
-
-                            ans += alpha * beta * m[p][q] * cos((2 * i + 1) * M_PI * p / (2 * blockSize)) *
+                            if (p == 0) alpha = sqrt(1.0 / blockSize);
+                            else alpha = sqrt(2.0 / blockSize);
+                            if (q == 0) beta = sqrt(1.0 / blockSize);
+                            else beta = sqrt(2.0 / blockSize);
+                            tmp += alpha * beta * m[p][q] * cos((2 * i + 1) * M_PI * p / (2 * blockSize)) *
                                    cos((2 * j + 1) * M_PI * q / (2 * blockSize));
                         }
-                    a[i][j] = ans;
+                    a[i][j] = tmp;
                 }
             }
+
 
             for (int k = 0; k < blockSize; k++) {
                 for (int l = 0; l < blockSize; l++) {
@@ -194,10 +190,11 @@ static double **do_idct(int length, int width, int block_bit, double **dct) {
         }
     }
     return IDCTimage;
-}
+}//输入图像的长、宽、要求分块的大小、DCT处理后图像矩阵，返回IDCT矩阵
+
 
 static double **do_dct_2(double **dct, int length, int width, int block_bit) {
-    double **DCT2image = (double **) malloc(sizeof(double *) * length);
+    double **DCT2image = (double **) malloc(sizeof(double *) * length);//DCT2分配空间
     for (int i = 0; i < length; i++) {
         DCT2image[i] = (double *) malloc(sizeof(double) * width);
     }
@@ -206,14 +203,27 @@ static double **do_dct_2(double **dct, int length, int width, int block_bit) {
             DCT2image[i][j] = dct[i][j];
         }
     }
-    for (int i = 0; i < length; ++i) {
-        for (int j = 0; j < width; ++j) {
-            if ((i + j + 1) > length) {
-                DCT2image[i][j] = 0;
+    int blockSize = block_bit;
+    int blockNumberSize1 = length / block_bit;
+    int blockNumberSize2 = width / block_bit;
+    for (int i = 0; i < blockNumberSize1; ++i) {                                //图像分块
+        for (int j = 0; j < blockNumberSize2; ++j) {
+            for (int k = 0; k < blockSize; ++k) {
+                for (int l = 0; l < blockSize; ++l) {
+
+                    /*if((k==0)&(l==0)){
+                        //DCT2image[i*blockSize+k][j*blockSize+l]=0;
+                    }*/
+                    if ((k + l + 1) > blockSize) {
+                        DCT2image[i * blockSize + k][j * blockSize + l] = 0;
+                    }
+                    if (((k + l + 1) == blockSize) && ((k + 1) > (blockSize / 4)) && ((k + 1) <= (blockSize / 4 * 3))) {
+                        DCT2image[i * blockSize + k][j * blockSize + l] = 0;
+                    }
+
+                }
             }
-            if (((i + j + 1) == length) && ((i + 1) > (length / 2))) {
-                DCT2image[i][j] = 0;
-            }
+
         }
     }
 
@@ -221,4 +231,4 @@ static double **do_dct_2(double **dct, int length, int width, int block_bit) {
     IDCT2image = do_idct(length, width, block_bit, DCT2image);
 
     return IDCT2image;
-}
+}//输入DCT处理后图像、图像的长、宽、要求分块的大小，返回IDCT2矩阵
