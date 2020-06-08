@@ -5,6 +5,8 @@
 #include "callbacks.h"
 #include "image-widget.h"
 
+#include <stdlib.h>
+
 #include <imgproc/color-convert.h>
 #include <imgproc/histogram-equalization.h>
 #include <imgproc/lossless-predictive-coding.h>

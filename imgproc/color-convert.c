@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <cblas.h>
+#include <stdlib.h>
 #include <imgproc/color-convert.h>
 
 gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
