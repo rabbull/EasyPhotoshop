@@ -7,6 +7,7 @@
 
 #include <imgproc/color-convert.h>
 #include <imgproc/histogram-equalization.h>
+#include <imgproc/uniform-quantization.h>
 
 void grayscale(GtkWidget *widget, gpointer data) {
     struct grayscale_args *args = data;
@@ -24,6 +25,15 @@ void histeq(GtkWidget *widget, gpointer data) {
     imgproc_histogram_equalization(image, &image);
     gui_image_widget_update_image(img_widget, image);
     g_object_unref(image);
+}
+
+void uniform(GtkWidget *widget, gpointer data) {
+    struct uniform_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *uniformed_image;
+    uniformed_image = imgproc_uniform_quantization(image, 100);
+    gui_image_widget_update_image(img_widget, uniformed_image);
 }
 
 void open_file(GtkWidget *widget, gpointer data) {
