@@ -2,7 +2,7 @@
 // Created by Mr.W on 2020/6/6.
 //
 
-#include <core/uniform-quantization.h>
+#include <imgproc/uniform-quantization.h>
 #include <core/image.h>
 #include <stdint.h>
 
