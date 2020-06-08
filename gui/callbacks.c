@@ -161,7 +161,7 @@ void lpc(GtkWidget *widget, gpointer data) {
             }
             sum += coef[i];
         }
-        if (sum != 1) {
+        if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
             goto fail;
         }
         coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
