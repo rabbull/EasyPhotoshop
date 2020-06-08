@@ -32,7 +32,7 @@ void uniform(GtkWidget *widget, gpointer data) {
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     CoreImage *uniformed_image;
-    uniformed_image = imgproc_uniform_quantization(image, 2);
+    uniformed_image = imgproc_uniform_quantization(image, 100);
     gui_image_widget_update_image(img_widget, uniformed_image);
 }
 

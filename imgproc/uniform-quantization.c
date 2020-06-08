@@ -2,11 +2,7 @@
 // Created by Mr.W on 2020/6/6.
 //
 
-<<<<<<< HEAD
 #include "uniform-quantization.h"
-=======
-#include <imgproc/uniform-quantization.h>
->>>>>>> cb40bfe3b46b2cd06e871eb059e12b19a7cac5dd
 #include <core/image.h>
 #include <stdint.h>
 
@@ -26,7 +22,7 @@ CoreImage *imgproc_uniform_quantization(CoreImage *image, guint32 ratio) {
     }
 
     //initial
-    CoreSize *new_size = core_size_new_with_value(col, row);
+    CoreSize *new_size = core_size_new_with_value(row, col);
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_GRAY_SCALE;
     CorePixelType new_pixel_type = core_image_get_pixel_type(image);
     guint8** result_data = (guint8**)g_malloc(sizeof(guint8*) * row);
