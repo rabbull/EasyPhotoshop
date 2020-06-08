@@ -39,7 +39,7 @@ void lpc(GtkWidget *widget, gpointer data) {
     guint32 rank;
     gdouble *coef;
     gdouble sum;
-    char *coef_text;
+    char *coef_text, *cursor;
     guint32 i;
 
     dialog = gtk_dialog_new_with_buttons("Rank and Coefficients", args->parent, GTK_DIALOG_MODAL, "Confirm",
@@ -65,18 +65,19 @@ void lpc(GtkWidget *widget, gpointer data) {
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
         rank = strtol(gtk_entry_get_text(GTK_ENTRY(entry_rank)), NULL, 10);
         coef_text = calloc(strlen(gtk_entry_get_text(GTK_ENTRY(entry_rank))) + 1, 1);
+        cursor = coef_text;
         strcpy(coef_text, gtk_entry_get_text(GTK_ENTRY(entry_coef)));
         coef = malloc(sizeof(gdouble) * rank);
         sum = 0;
         for (i = 0; i < rank; ++i) {
-            coef[i] = strtod(coef_text, &coef_text);
-            if (coef[i] <= 0) {
+            while (*cursor == ' ') {
+                cursor += 1;
+            }
+            coef[i] = strtod(cursor, &cursor);
+            if (coef[i] < 0) {
                 goto fail;
             }
             sum += coef[i];
-            while (*coef_text == ' ') {
-                coef_text += 1;
-            }
         }
         if (sum != 1) {
             goto fail;
