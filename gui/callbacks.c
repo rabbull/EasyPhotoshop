@@ -31,16 +31,20 @@ void lpc(GtkWidget *widget, gpointer data) {
     struct lpc_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
-    CoreImage *coded_image;
-    GtkWidget *dialog;
+    CoreImage *coded_image = NULL;
+    GtkWidget *dialog = NULL;
     GtkWidget *label_rank, *label_coef;
     GtkWidget *entry_rank, *entry_coef;
     GtkWidget *grid_layout;
     guint32 rank;
-    gdouble *coef;
+    gdouble *coef = NULL;
     gdouble sum;
-    char *coef_text, *cursor;
+    char *coef_text = NULL, *cursor = NULL;
     guint32 i;
+
+    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+        goto fail;
+    }
 
     dialog = gtk_dialog_new_with_buttons("Rank and Coefficients", args->parent, GTK_DIALOG_MODAL, "Confirm",
                                          GTK_RESPONSE_ACCEPT, "Cancel", GTK_RESPONSE_CANCEL, NULL);
@@ -94,7 +98,7 @@ void lpc(GtkWidget *widget, gpointer data) {
     return;
 
     fail:
-    gtk_widget_destroy(dialog);
+    if (dialog) gtk_widget_destroy(dialog);
     free(coef_text);
     free(coef);
 }
