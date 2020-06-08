@@ -6,15 +6,8 @@
 
 int main()//测试用
 {
-<<<<<<< HEAD
-    int imagelength=4;
-    int imagewidth=4;
-=======
-
-
     int imagelength=11;
     int imagewidth=11;
->>>>>>> 629af033a2d86bde8d3d6a485a45a9d06160418c
     int block_bit =4;
 
     double **image=getImage(imagelength,imagewidth);//输入图像的尺寸信息，以及分块大小，图像矩阵
