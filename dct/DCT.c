@@ -13,7 +13,45 @@ double** getImage(int length,int width){
 
     }
 
-    double copy[4][4]={{5,3,0,2},{1,7,8,3},{4,2,2,2},{8,5,2,1}};
+    /*double copy[4][6]={{255,3,0,110,2},
+                       {1,2,4,5,40},
+                       {4,1,3,4,5},
+                       {8,3,49,123,99}};*/
+    /*
+    double copy[9][9] = {  {52,55,61,66,70,61,64,73,1},
+                        {63,59,55,90,109,85,69,72,2},
+                        {62,59,68,113,144,104,66,73,3},
+                        {63,58,71,122,154,106,70,69,4},
+                        {67,61,68,104,126,88,68,70,5},
+                        {79,65,60,70,77,68,58,75,6},
+                        {85,71,64,59,55,61,65,83,7},
+                        {87,79,69,68,65,76,78,94,10},
+                        {1,2,3,45,6,7,8,98,7}};*/
+
+    /*double copy[8][8] = {  {52,55,61,66,70,61,64,73},
+                        {63,59,55,90,109,85,69,72},
+                        {62,59,68,113,144,104,66,73},
+                        {63,58,71,122,154,106,70,69},
+                        {67,61,68,104,126,88,68,70},
+                        {79,65,60,70,77,68,58,75},
+                        {85,71,64,59,55,61,65,83},
+                        {87,79,69,68,65,76,78,94} };*/
+    /*double copy[4][8] = {  {52,55,61,66,70,61,64,73},
+                           {63,59,55,90,109,85,69,72},
+                           {62,59,68,113,144,104,66,73},
+                           {63,58,71,122,154,106,70,69},};*/
+    double copy[11][11] = {{52,55,61,66,70,61,64,73,77,89,3},
+        {63,59,55,90,109,85,69,72,13,10,46},
+        {62,59,68,113,144,104,66,73,20,40,56},
+        {63,58,71,122,154,106,70,69,10,30,78},
+        {67,61,68,104,126,88,68,70,25,37,45},
+        {79,65,60,118,155,255,0,75,25,46,14},
+        {85,71,64,59,55,61,65,83,16,63,13},
+        {87,79,69,68,64,73,77,94,28,199,46},
+        {47,59,64,67,66,74,78,95,27,18,48},
+        {67,109,69,68,65,76,78,94,26,209,11},
+        {67,109,69,68,65,76,77,74,66,9,10}};
+
 
     for(int i=0;i<length;i++){
         for(int j=0;j<width;j++){
@@ -23,7 +61,7 @@ double** getImage(int length,int width){
     }
 
     return image;
-}
+}//获取测试的图像矩阵，最终不需要
 
 
 double ** DO_DCT(int length, int width, int block_bit,double** image) {
@@ -31,8 +69,8 @@ double ** DO_DCT(int length, int width, int block_bit,double** image) {
     //double **image=getImage(length,width);//获取图像信息
 
     int blockSize=block_bit;
-    int blockNumberSize=length/block_bit;
-
+    int blockNumberSize1=length/block_bit;
+    int blockNumberSize2=width/block_bit;
     double ** DCTimage=(double**)malloc(sizeof(double *)*length);//DCT
     for(int i=0;i<length;i++){
         DCTimage[i]=(double *)malloc(sizeof(double *)*width);
@@ -54,9 +92,9 @@ double ** DO_DCT(int length, int width, int block_bit,double** image) {
     }
 
 
-    for(int i=0;i<blockNumberSize;++i)
+    for(int i=0;i<blockNumberSize1;++i)
     {                                //图像分块
-        for(int j=0;j<blockNumberSize;++j)
+        for(int j=0;j<blockNumberSize2;++j)
         {
             for(int k=0;k<blockSize;k++)
             {
@@ -92,16 +130,17 @@ double ** DO_DCT(int length, int width, int block_bit,double** image) {
             }
         }
     }
-    printf("success in DCT\n");
+    //printf("success in DCT\n");
     return DCTimage;
-}
+}//输入图像的长、宽、要求分块的大小、原始图像矩阵，返回DCT矩阵
 
 double ** DO_IDCT(int length,int width,int block_bit,double ** dct){
 
     //int **image=getImage(length,width);
 
     int blockSize=block_bit;
-    int blockNumberSize=length/block_bit;
+    int blockNumberSize1=length/block_bit;
+    int blockNumberSize2=width/block_bit;
 
     double ** IDCTimage=(double**)malloc(sizeof(double *)*length);//IDCT
     for(int i=0;i<length;i++){
@@ -118,14 +157,19 @@ double ** DO_IDCT(int length,int width,int block_bit,double ** dct){
         a[i]=(double *)malloc(sizeof(double *)*block_bit);
     }
 
+    for (int i = 0; i <length ; ++i) {
+        for (int j = 0; j <width ; ++j) {
+                IDCTimage[i][j]=dct[i][j];
+        }
 
+    }
     //dct=DO_DCT(length,width,block_bit);
 
 
 
-    for(int i=0;i<blockNumberSize;++i)
+    for(int i=0;i<blockNumberSize1;++i)
     {       //图像分块
-        for(int j=0;j<blockNumberSize;++j)
+        for(int j=0;j<blockNumberSize2;++j)
         {
             for(int k=0;k<blockSize;k++)
             {
@@ -137,31 +181,21 @@ double ** DO_IDCT(int length,int width,int block_bit,double ** dct){
             }
             //IDCT
             double alpha,beta;
-
             for(int i=0; i < blockSize; i++)
             {
                 for(int j=0; j < blockSize; j++)
                 {
-                    double ans=0;
+                    double tmp=0.0;
                     for(int p=0; p < blockSize; p++)
                         for(int q=0; q < blockSize; q++)
                         {
-                            if(p==0) {
-                                alpha = sqrt(1.0 / blockSize);
-                            }
-                            else {
-                                alpha=sqrt(2.0 / blockSize);
-                            }
-                            if(q==0) {
-                                beta=sqrt(1.0 / blockSize);
-                            }
-                            else {
-                                beta=sqrt(2.0 / blockSize);
-                            }
-
-                            ans+= alpha * beta * m[p][q] * cos((2 * i + 1) * PI * p / (2 * blockSize)) * cos((2 * j + 1) * PI * q / (2 * blockSize));
+                            if(p==0) alpha=sqrt(1.0 / blockSize);
+                            else alpha=sqrt(2.0 / blockSize);
+                            if(q==0) beta=sqrt(1.0 / blockSize);
+                            else beta=sqrt(2.0 / blockSize);
+                            tmp+= alpha * beta * m[p][q] * cos((2 * i + 1) * PI * p / (2 * blockSize)) * cos((2 * j + 1) * PI * q / (2 * blockSize));
                         }
-                    a[i][j]=ans;
+                    a[i][j]=tmp;
                 }
             }
 
@@ -176,11 +210,12 @@ double ** DO_IDCT(int length,int width,int block_bit,double ** dct){
             }
         }
     }
-    printf("success in IDCT!\n");
+    //printf("success in IDCT!\n");
     return IDCTimage;
-}
+}//输入图像的长、宽、要求分块的大小、DCT处理后图像矩阵，返回IDCT矩阵
+
 double** DODCT2(double **image,int length,int width,int block_bit){
-    printf("\nthis is half dct\n");
+
 
     double ** DCT2image=(double**)malloc(sizeof(double *)*length);//DCT2分配空间
     for(int i=0;i<length;i++){
@@ -191,19 +226,35 @@ double** DODCT2(double **image,int length,int width,int block_bit){
             DCT2image[i][j]=image[i][j];
         }
     }
-    for (int i = 0; i <length ; ++i) {
-        for (int j = 0; j < width; ++j) {
-            if((i+j+1)>length){
-                DCT2image[i][j]=0;
-            }
-            if(((i+j+1)==length)&&((i+1)>(length/2))){
-                DCT2image[i][j]=0;
+    int blockSize=block_bit;
+    int blockNumberSize1=length/block_bit;
+    int blockNumberSize2=width/block_bit;
+    for(int i=0;i<blockNumberSize1;++i)
+    {                                //图像分块
+        for(int j=0;j<blockNumberSize2;++j)
+        {
+            for (int k = 0; k <blockSize ; ++k) {
+                for (int l = 0; l < blockSize; ++l) {
+
+                    /*if((k==0)&(l==0)){
+                        //DCT2image[i*blockSize+k][j*blockSize+l]=0;
+                    }*/
+                    if((k+l+1)>blockSize){
+                        DCT2image[i*blockSize+k][j*blockSize+l]=0;
+                    }
+                    if(((k+l+1)==blockSize)&&((k+1)>(blockSize/4))&&((k+1)<=(blockSize/4*3))){
+                        DCT2image[i*blockSize+k][j*blockSize+l]=0;
+                    }
+
+                }
             }
 
-        }}
+        }
+    }
 
-    /*test
+/*
     for (int i = 0; i < length; ++i) {
+                                        //half dct test
         for (int j = 0; j <width ; ++j) {
             printf("%f_",DCT2image[i][j]);
         }
@@ -216,7 +267,7 @@ double** DODCT2(double **image,int length,int width,int block_bit){
 
     return IDCT2image;
 
-}
+}//输入DCT处理后图像、图像的长、宽、要求分块的大小，返回IDCT2矩阵
 
 
 
