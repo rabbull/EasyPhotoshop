@@ -9,7 +9,7 @@
 guint8 **new_matrix(guint32 x, guint32 y);
 
 //ratio为用户输入压缩比
-CoreImage *uniform_quantization(CoreImage *image, guint32 ratio) {
+CoreImage *imgproc_uniform_quantization(CoreImage *image, guint32 ratio) {
     //get image info
     guint32 row = core_size_get_height(core_image_get_size(image));
     guint32 col = core_size_get_width(core_image_get_size(image));

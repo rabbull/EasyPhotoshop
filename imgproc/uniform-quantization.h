@@ -8,4 +8,5 @@
 #include <core/image.h>
 
 CoreImage *imgproc_uniform_quantization(CoreImage* image, guint32 ratio);
+
 #endif //EASYPHOTOSHOP_UNIFORM_QUANTIZATION_H
