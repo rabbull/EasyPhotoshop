@@ -118,7 +118,7 @@ void lpc(GtkWidget *widget, gpointer data) {
         goto fail;
     }
 
-    additional_arguments = request_arguments("Lossless Predictive Coding", args->parent, 2,
+    additional_arguments = request_arguments("Predictive Coding", args->parent, 2,
                                              additional_argument_names);
     if (additional_arguments == NULL) {
         goto fail;
@@ -173,14 +173,14 @@ void ilpc(GtkWidget *widget, gpointer data) {
     gdouble sum;
     char *cursor = NULL;
     char const *additional_argument_names[] = {"Rank", "Coefficients"};
-    char **additional_arguments;
+    char **additional_arguments = NULL;
     guint32 i;
 
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         goto fail;
     }
 
-    additional_arguments = request_arguments("Lossless Predictive Coding", args->parent, 2,
+    additional_arguments = request_arguments("Predictive Decoding", args->parent, 2,
                                              additional_argument_names);
     if (additional_arguments == NULL) {
         goto fail;
