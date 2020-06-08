@@ -106,74 +106,122 @@ void lpc(GtkWidget *widget, gpointer data) {
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     CoreImage *coded_image = NULL;
-    GtkWidget *dialog = NULL;
-    GtkWidget *label_rank, *label_coef;
-    GtkWidget *entry_rank, *entry_coef;
-    GtkWidget *grid_layout;
     guint32 rank;
     gdouble *coef = NULL;
     gdouble sum;
-    char *coef_text = NULL, *cursor = NULL;
+    char *cursor = NULL;
+    char const *additional_argument_names[] = {"Rank", "Coefficients"};
+    char **additional_arguments = NULL;
     guint32 i;
 
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         goto fail;
     }
 
-    dialog = gtk_dialog_new_with_buttons("Rank and Coefficients", args->parent, GTK_DIALOG_MODAL, "Confirm",
-                                         GTK_RESPONSE_ACCEPT, "Cancel", GTK_RESPONSE_CANCEL, NULL);
-    gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
+    additional_arguments = request_arguments("Lossless Predictive Coding", args->parent, 2,
+                                             additional_argument_names);
+    if (additional_arguments == NULL) {
+        goto fail;
+    }
 
-    label_rank = gtk_label_new("Rank");
-    label_coef = gtk_label_new("Coefficients");
-    entry_rank = gtk_entry_new();
-    entry_coef = gtk_entry_new();
-
-    grid_layout = gtk_grid_new();
-    gtk_grid_attach(GTK_GRID(grid_layout), label_rank, 0, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid_layout), label_coef, 0, 1, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid_layout), entry_rank, 1, 0, 1, 1);
-    gtk_grid_attach(GTK_GRID(grid_layout), entry_coef, 1, 1, 1, 1);
-
-    gtk_grid_set_column_spacing(GTK_GRID(grid_layout), 5);
-    gtk_grid_set_row_spacing(GTK_GRID(grid_layout), 5);
-
-    gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), grid_layout, 0, 1, 0);
-    gtk_widget_show_all(dialog);
-    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-        rank = strtol(gtk_entry_get_text(GTK_ENTRY(entry_rank)), NULL, 10);
-        coef_text = calloc(strlen(gtk_entry_get_text(GTK_ENTRY(entry_rank))) + 1, 1);
-        cursor = coef_text;
-        strcpy(coef_text, gtk_entry_get_text(GTK_ENTRY(entry_coef)));
-        coef = malloc(sizeof(gdouble) * rank);
-        sum = 0;
-        for (i = 0; i < rank; ++i) {
-            while (*cursor == ' ') {
-                cursor += 1;
-            }
-            coef[i] = strtod(cursor, &cursor);
-            if (coef[i] < 0) {
-                goto fail;
-            }
-            sum += coef[i];
+    rank = strtol(additional_arguments[0], NULL, 10);
+    cursor = additional_arguments[1];
+    coef = malloc(sizeof(gdouble) * rank);
+    sum = 0;
+    for (i = 0; i < rank; ++i) {
+        while (*cursor == ' ') {
+            cursor += 1;
         }
-        if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
+        coef[i] = strtod(cursor, &cursor);
+        if (coef[i] < 0) {
             goto fail;
         }
-        coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
-        gui_image_widget_update_image(img_widget, coded_image);
-        g_object_unref(image);
-        g_object_unref(coded_image);
-
-        free(coef_text);
-        free(coef);
+        sum += coef[i];
     }
-    gtk_widget_destroy(dialog);
+    if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
+        goto fail;
+    }
+    coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
+    gui_image_widget_update_image(img_widget, coded_image);
+    g_object_unref(image);
+    g_object_unref(coded_image);
+
+    for (i = 0; i < 2; ++i) {
+        free(additional_arguments[i]);
+    }
+    free(additional_arguments);
+    free(coef);
     return;
 
     fail:
-    if (dialog) gtk_widget_destroy(dialog);
-    free(coef_text);
+    if (additional_arguments) {
+        for (i = 0; i < 2; ++i) {
+            free(additional_arguments[i]);
+        }
+        free(additional_arguments);
+    }
+    free(coef);
+}
+
+void ilpc(GtkWidget *widget, gpointer data) {
+    struct lpc_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *coded_image = NULL;
+    guint32 rank;
+    gdouble *coef = NULL;
+    gdouble sum;
+    char *cursor = NULL;
+    char const *additional_argument_names[] = {"Rank", "Coefficients"};
+    char **additional_arguments;
+    guint32 i;
+
+    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+        goto fail;
+    }
+
+    additional_arguments = request_arguments("Lossless Predictive Coding", args->parent, 2,
+                                             additional_argument_names);
+    if (additional_arguments == NULL) {
+        goto fail;
+    }
+
+    rank = strtol(additional_arguments[0], NULL, 10);
+    cursor = additional_arguments[1];
+    coef = malloc(sizeof(gdouble) * rank);
+    sum = 0;
+    for (i = 0; i < rank; ++i) {
+        while (*cursor == ' ') {
+            cursor += 1;
+        }
+        coef[i] = strtod(cursor, &cursor);
+        if (coef[i] < 0) {
+            goto fail;
+        }
+        sum += coef[i];
+    }
+    if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
+        goto fail;
+    }
+    coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
+    gui_image_widget_update_image(img_widget, coded_image);
+    g_object_unref(image);
+    g_object_unref(coded_image);
+
+    for (i = 0; i < 2; ++i) {
+        free(additional_arguments[i]);
+    }
+    free(additional_arguments);
+    free(coef);
+    return;
+
+    fail:
+    if (additional_arguments) {
+        for (i = 0; i < 2; ++i) {
+            free(additional_arguments[i]);
+        }
+        free(additional_arguments);
+    }
     free(coef);
 }
 

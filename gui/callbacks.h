@@ -36,6 +36,8 @@ struct lpc_args {
 
 void lpc(GtkWidget *widget, gpointer data);
 
+void ilpc(GtkWidget *widget, gpointer data);
+
 struct open_file_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
