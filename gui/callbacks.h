@@ -34,9 +34,9 @@ struct lpc_args {
     GuiImageWidget *gui_image_widget;
 };
 
-void lpc(GtkWidget *widget, gpointer data);
+void predictive_coding(GtkWidget *widget, gpointer data);
 
-void ilpc(GtkWidget *widget, gpointer data);
+void predictive_decoding(GtkWidget *widget, gpointer data);
 
 struct open_file_args {
     GtkWindow *parent;

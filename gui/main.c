@@ -65,11 +65,11 @@ int gui_main(int argc, char **argv) {
     button_lpc = gtk_button_new_with_label("predictive coding");
     lpc_args.parent = GTK_WINDOW(window);
     lpc_args.gui_image_widget = gui_image_widget;
-    g_signal_connect(G_OBJECT(button_lpc), "clicked", G_CALLBACK(lpc), &lpc_args);
+    g_signal_connect(G_OBJECT(button_lpc), "clicked", G_CALLBACK(predictive_coding), &lpc_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_lpc));
 
     button_ilpc = gtk_button_new_with_label("predictive decoding");
-    g_signal_connect(G_OBJECT(button_ilpc), "clicked", G_CALLBACK(ilpc), &lpc_args);
+    g_signal_connect(G_OBJECT(button_ilpc), "clicked", G_CALLBACK(predictive_decoding), &lpc_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_ilpc));
 
     /* OPEN FILE */

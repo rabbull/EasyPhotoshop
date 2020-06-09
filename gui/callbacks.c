@@ -101,7 +101,7 @@ void ordered_dither(GtkWidget *widget, gpointer data) {
     g_object_unref(image);
 }
 
-void lpc(GtkWidget *widget, gpointer data) {
+void predictive_coding(GtkWidget *widget, gpointer data) {
     struct lpc_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
@@ -141,7 +141,7 @@ void lpc(GtkWidget *widget, gpointer data) {
     if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
         goto fail;
     }
-    coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
+    coded_image = imgproc_predictive_coding(image, rank, coef);
     gui_image_widget_update_image(img_widget, coded_image);
     g_object_unref(image);
     g_object_unref(coded_image);
@@ -163,7 +163,7 @@ void lpc(GtkWidget *widget, gpointer data) {
     free(coef);
 }
 
-void ilpc(GtkWidget *widget, gpointer data) {
+void predictive_decoding(GtkWidget *widget, gpointer data) {
     struct lpc_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
@@ -203,7 +203,7 @@ void ilpc(GtkWidget *widget, gpointer data) {
     if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
         goto fail;
     }
-    coded_image = imgproc_lossless_predictive_coding(image, rank, coef);
+    coded_image = imgproc_predictive_decoding(image, rank, coef);
     gui_image_widget_update_image(img_widget, coded_image);
     g_object_unref(image);
     g_object_unref(coded_image);
