@@ -93,7 +93,7 @@ void dither(GtkWidget *widget, gpointer data) {
         return;
     }
     guint rank = strtol(requested_arguments[0], NULL, 10);
-    dithered = imgproc_to_binary_dither(image, rank, 1);
+    dithered = imgproc_to_binary_dither(image, rank, 0);
     gui_image_widget_update_image(img_widget, dithered);
     g_object_unref(image);
 }
