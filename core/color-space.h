@@ -8,11 +8,12 @@
 #include <glib-object.h>
 
 typedef enum {
-    CORE_COLOR_SPACE_BIN = 1,
-    CORE_COLOR_SPACE_GRAY_SCALE = 9,
-    CORE_COLOR_SPACE_RGB = 3,
-    CORE_COLOR_SPACE_HSL = 11,
-    CORE_COLOR_SPACE_RGBA = 4
+    CORE_COLOR_SPACE_BIN = 01,          /* binary image */
+    CORE_COLOR_SPACE_GRAY_SCALE = 011,  /* gray scale image */
+    CORE_COLOR_SPACE_RGB = 03,          /* rgb image */
+    CORE_COLOR_SPACE_HSL = 013,         /* hsl image */
+    CORE_COLOR_SPACE_RGBA = 04,         /* rgba image */
+    CORE_COLOR_SPACE_PLAIN = 021,       /* image that stores plain data */
 } CoreColorSpace;
 
 guint8 core_color_space_get_channel(CoreColorSpace color_space);
