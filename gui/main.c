@@ -11,14 +11,24 @@
 
 int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
-    GtkWidget *button_histeq, *button_grayscale, *button_uniform, *button_open, *button_save;
+    GtkWidget *button_histeq;
+    GtkWidget *button_grayscale;
+    GtkWidget *button_dither;
+    GtkWidget *button_uniform;
+    GtkWidget *button_ordered_dither;
+    GtkWidget *button_lpc;
+    GtkWidget *button_ilpc;
+    GtkWidget *button_open;
+    GtkWidget *button_save;
     GuiImageWidget *gui_image_widget;
 
     struct grayscale_args grayscale_args;
     struct histeq_args histeq_args;
+    struct lpc_args lpc_args;
     struct open_file_args open_file_args;
     struct save_file_args save_file_args;
     struct uniform_args uniform_args;
+    struct dither_args dither_args;
 
     gtk_init(&argc, &argv);
 
@@ -35,22 +45,48 @@ int gui_main(int argc, char **argv) {
     box_buttons = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
     gtk_container_add(GTK_CONTAINER(box_main), GTK_WIDGET(box_buttons));
 
-    button_grayscale = gtk_button_new_with_label("grayscale");
+    /* CONVERT TO GRAYSCALE */
+    button_grayscale = gtk_button_new_with_label("conversion to grayscale");
     grayscale_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_grayscale), "clicked", G_CALLBACK(grayscale), &grayscale_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_grayscale));
 
-    button_histeq = gtk_button_new_with_label("histeq");
+    /* HISTOGRAM EQUALIZATION */
+    button_histeq = gtk_button_new_with_label("histogram equalization");
     histeq_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_histeq), "clicked", G_CALLBACK(histeq), &histeq_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_histeq));
 
+    /* UNIFORM QUANTIZATION */
     button_uniform = gtk_button_new_with_label("uniform");
     uniform_args.parent = GTK_WINDOW(window);
     uniform_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_uniform), "clicked", G_CALLBACK(uniform), &uniform_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_uniform));
 
+    /* DITHERING */
+    button_dither = gtk_button_new_with_label("dithering");
+    dither_args.parent = GTK_WINDOW(window);
+    dither_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_dither), "clicked", G_CALLBACK(dither), &dither_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_dither));
+
+    button_ordered_dither = gtk_button_new_with_label("ordered dithering");
+    g_signal_connect(G_OBJECT(button_ordered_dither), "clicked", G_CALLBACK(ordered_dither), &dither_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_ordered_dither));
+
+    /* PREDICTIVE CODING */
+    button_lpc = gtk_button_new_with_label("predictive coding");
+    lpc_args.parent = GTK_WINDOW(window);
+    lpc_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_lpc), "clicked", G_CALLBACK(predictive_coding), &lpc_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_lpc));
+
+    button_ilpc = gtk_button_new_with_label("predictive decoding");
+    g_signal_connect(G_OBJECT(button_ilpc), "clicked", G_CALLBACK(predictive_decoding), &lpc_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_ilpc));
+
+    /* OPEN FILE */
     button_open = gtk_button_new_with_label("open file");
     open_file_args.parent = GTK_WINDOW(window);
     open_file_args.gui_image_widget = gui_image_widget;

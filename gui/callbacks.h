@@ -27,6 +27,24 @@ struct uniform_args {
 
 void uniform(GtkWidget *widget, gpointer data);
 
+struct dither_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void dither(GtkWidget *widget, gpointer data);
+
+void ordered_dither(GtkWidget *widget, gpointer data);
+
+struct lpc_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void predictive_coding(GtkWidget *widget, gpointer data);
+
+void predictive_decoding(GtkWidget *widget, gpointer data);
+
 struct open_file_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
