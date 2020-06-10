@@ -219,7 +219,6 @@ static double **do_idct(int length, int width, int block_bit, double **dct) {
         for (int j = 0; j < width; ++j) {
             IDCTimage[i][j] = dct[i][j];
         }
-
     }
 
     for (int i = 0; i < blockNumberSize1; ++i) {       //图像分块

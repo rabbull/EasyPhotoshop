@@ -26,6 +26,18 @@ void histeq(GtkWidget *widget, gpointer data) {
     g_object_unref(image);
 }
 
+void dct(GtkWidget *widget, gpointer data) {
+    struct dct_args *args = data;
+}
+
+void dct_drop(GtkWidget *widget, gpointer data) {
+    struct dct_args *args = data;
+}
+
+void idct(GtkWidget *widget, gpointer data) {
+    struct dct_args *args = data;
+}
+
 void open_file(GtkWidget *widget, gpointer data) {
     struct open_file_args *args = data;
     GtkWidget *dialog;

@@ -20,6 +20,16 @@ struct histeq_args {
 
 void histeq(GtkWidget *widget, gpointer data);
 
+struct dct_args {
+    GuiImageWidget *gui_image_widget;
+};
+
+void dct(GtkWidget *widget, gpointer data);
+
+void dct_drop(GtkWidget *widget, gpointer data);
+
+void idct(GtkWidget *widget, gpointer data);
+
 struct open_file_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
