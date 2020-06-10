@@ -2,7 +2,8 @@
 // Created by 唐继 on 2020/6/5.
 //
 
-#include "math.h"
+#include <stdio.h>
+
 #include <core/image.h>
 #include "lossless-predictive-coding.h"
 
@@ -26,7 +27,7 @@ CoreImage *imgproc_predictive_coding(CoreImage *image, guint32 rank, gdouble con
     //initial
     CoreSize *new_size = core_size_new_with_value(row, col);
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_GRAY_SCALE;
-    CorePixelType new_pixel_type = CORE_PIXEL_U1;
+    CorePixelType new_pixel_type = CORE_PIXEL_D1;
     gdouble **result_data = (gdouble **) g_malloc(sizeof(gdouble *) * row);
     for (guint32 i = 0; i < row; i++) {
         result_data[i] = (gdouble *) g_malloc(sizeof(gdouble) * col);
@@ -55,38 +56,13 @@ CoreImage *imgproc_predictive_coding(CoreImage *image, guint32 rank, gdouble con
     for (guint32 i = 0; i < row; i++) {
         for (guint32 j = 0; j < col; j++) {
             result_data[i][j] = (result_data[i][j] + 255) / 2;
-            result_data[i][j] = (guint8) result_data[i][j];
         }
     }
 
-    //反映射
-    for (guint32 i = 0; i < row; i++) {
-        for (guint32 j = 0; j < col; j++) {
-            result_data[i][j] = result_data[i][j] * 2 - 255;
-        }
-    }
-
-    //逆向
-    for (guint32 i = 0; i < row; i++) {
-        for (guint32 j = 0; j < col; j++) {
-            if (j == 0) {
-                result_data[i][j] = result_data[i][j];
-            } else if (j < rank) {
-                result_data[i][j] = result_data[i][j] + result_data[i][0];
-            } else {
-                for (x = rank, y = 0; x >= 1 && y < rank; x--, y++) {
-                    data_pre = data_pre + (gdouble) data[i][j - x] * coefficient[y];
-                }
-                result_data[i][j] = result_data[i][j] + data_pre;
-                data_pre = 0.0;
-            }
-        }
-    }
-
-    guint8 *result_matrix = (guint8 *) g_malloc(row * col * sizeof(guint8));
+    gdouble *result_matrix = (gdouble *) g_malloc(row * col * sizeof(gdouble));
     for (guint32 i = 0, z = 0; i < row; i++) {
         for (guint32 j = 0; j < col; j++) {
-            result_matrix[z++] = (guint8) result_data[i][j];
+            result_matrix[z++] = (gdouble) result_data[i][j];
         }
         g_free(result_data[i]);
     }
@@ -103,11 +79,12 @@ CoreImage *imgproc_predictive_decoding(CoreImage *image, guint32 rank, gdouble c
     //get image info
     guint32 row = core_size_get_height(core_image_get_size(image));
     guint32 col = core_size_get_width(core_image_get_size(image));
-    guint8 *image_data = (guint8 *) core_image_get_data(image);
-    guint8 **data = new_matrix(row, col);
+    gdouble *image_data = (gdouble *) core_image_get_data(image);
+    gdouble **result_data = (gdouble **) g_malloc(sizeof(gdouble *) * row);
     for (guint32 i = 0, z = 0; i < row; i++) {
-        for (guint32 j = 0; j < col; j++) {
-            data[i][j] = image_data[z++];
+        result_data[i] = (gdouble *) g_malloc(sizeof(gdouble) * col);
+        for (gint32 j = 0; j < col; j++) {
+            result_data[i][j] = image_data[z++];
         }
     }
 
@@ -115,13 +92,6 @@ CoreImage *imgproc_predictive_decoding(CoreImage *image, guint32 rank, gdouble c
     CoreSize *new_size = core_size_new_with_value(row, col);
     CoreColorSpace new_color_space = CORE_COLOR_SPACE_GRAY_SCALE;
     CorePixelType new_pixel_type = CORE_PIXEL_U1;
-    gdouble **result_data = (gdouble **) g_malloc(sizeof(gdouble *) * row);
-    for (guint32 i = 0; i < row; i++) {
-        result_data[i] = (gdouble *) g_malloc(sizeof(gdouble) * col);
-        for (gint32 j = 0; j < col; j++) {
-            result_data[i][j] = (gdouble) data[i][j];
-        }
-    }
 
     //反映射
     for (guint32 i = 0; i < row; i++) {
@@ -129,12 +99,6 @@ CoreImage *imgproc_predictive_decoding(CoreImage *image, guint32 rank, gdouble c
             result_data[i][j] = result_data[i][j] * 2 - 255;
         }
     }
-
-    g_print("result_data after inverse mapping: ");
-    for (int i = 0; i < 10; ++i) {
-        g_print("%lf, ", result_data[i][i]);
-    }
-    g_print("\n");
 
     //逆向
     gdouble data_pre = 0.0;
@@ -147,19 +111,13 @@ CoreImage *imgproc_predictive_decoding(CoreImage *image, guint32 rank, gdouble c
                 result_data[i][j] = result_data[i][j] + result_data[i][0];
             } else {
                 for (x = rank, y = 0; x >= 1 && y < rank; x--, y++) {
-                    data_pre = data_pre + (gdouble) data[i][j - x] * coefficient[y];
+                    data_pre = data_pre + result_data[i][j - x] * coefficient[y];
                 }
                 result_data[i][j] = result_data[i][j] + data_pre;
                 data_pre = 0.0;
             }
         }
     }
-
-    g_print("result_data after decoding: ");
-    for (int i = 0; i < 10; ++i) {
-        g_print("%lf, ", result_data[i][i]);
-    }
-    g_print("\n");
 
     guint8 *result_matrix = (guint8 *) g_malloc(row * col * sizeof(guint8));
     for (guint32 i = 0, z = 0; i < row; i++) {
