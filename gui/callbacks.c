@@ -99,7 +99,7 @@ void dct(GtkWidget *widget, gpointer data) {
 void dct_drop(GtkWidget *widget, gpointer data) {
     struct dct_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
-    CoreImage *image, *transformed;
+    CoreImage *image, *dropped;
     long block_size;
     char const *field_names[] = {"Block Size"};
     char **requested_arguments;
@@ -113,19 +113,19 @@ void dct_drop(GtkWidget *widget, gpointer data) {
     free(requested_arguments);
 
     image = gui_image_widget_get_image(img_widget);
-    transformed = imgproc_discrete_cosine_transform_drop_half(image, block_size);
+    dropped = imgproc_discrete_cosine_transform_drop_half(image, block_size);
     g_object_unref(image);
-    if (transformed == NULL) {
+    if (dropped == NULL) {
         return;
     }
-    gui_image_widget_update_image(img_widget, transformed);
-    g_object_unref(transformed);
+    gui_image_widget_update_image(img_widget, dropped);
+    g_object_unref(dropped);
 }
 
 void idct(GtkWidget *widget, gpointer data) {
     struct dct_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
-    CoreImage *image, *transformed;
+    CoreImage *image, *recovered;
     long block_size;
     char const *field_names[] = {"Block Size"};
     char **requested_arguments;
@@ -139,13 +139,13 @@ void idct(GtkWidget *widget, gpointer data) {
     free(requested_arguments);
 
     image = gui_image_widget_get_image(img_widget);
-    transformed = imgproc_inverse_discrete_cosine_transform(image, block_size);
+    recovered = imgproc_inverse_discrete_cosine_transform(image, block_size);
     g_object_unref(image);
-    if (transformed == NULL) {
+    if (recovered == NULL) {
         return;
     }
-    gui_image_widget_update_image(img_widget, transformed);
-    g_object_unref(transformed);
+    gui_image_widget_update_image(img_widget, recovered);
+    g_object_unref(recovered);
 }
 
 void uniform(GtkWidget *widget, gpointer data) {

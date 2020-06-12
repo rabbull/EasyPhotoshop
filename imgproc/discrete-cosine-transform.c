@@ -106,11 +106,11 @@ CoreImage *imgproc_discrete_cosine_transform_drop_half(CoreImage *dct_image, gin
 CoreImage *imgproc_inverse_discrete_cosine_transform(CoreImage *dct_image, gint block_bit) {
     CoreImage *recovered;
     double **recovered_data;
-    gdouble *recovered_data_cast;
+    guint8 *recovered_data_cast;
     double **dct_data;
     CoreSize *size;
     int length, width;
-    int i;
+    int i, j;
 
     g_return_val_if_fail(CORE_COLOR_SPACE_MATRIX == core_image_get_color_space(dct_image), NULL);
     g_return_val_if_fail(CORE_PIXEL_D1 == core_image_get_pixel_type(dct_image), NULL);
@@ -125,13 +125,15 @@ CoreImage *imgproc_inverse_discrete_cosine_transform(CoreImage *dct_image, gint 
         memcpy(dct_data[i], (gdouble *) core_image_get_data(dct_image) + i * width, sizeof(gdouble) * width);
     }
     recovered_data = do_idct(length, width, block_bit, dct_data);
-    recovered_data_cast = g_malloc(sizeof(double) * core_size_get_area(size));
+    recovered_data_cast = g_malloc(sizeof(guint8) * core_size_get_area(size));
     for (i = 0; i < length; ++i) {
-        memcpy(recovered_data_cast + i * width, recovered_data[i], sizeof(double) * width);
+        for (j = 0; j < width; ++j) {
+            recovered_data_cast[i * width + j] = recovered_data[i][j];
+        }
         free(recovered_data[i]);
     }
     free(recovered_data);
-    recovered = core_image_new_with_data(recovered_data_cast, CORE_COLOR_SPACE_GRAY_SCALE, CORE_PIXEL_D1, size, FALSE);
+    recovered = core_image_new_with_data(recovered_data_cast, CORE_COLOR_SPACE_GRAY_SCALE, CORE_PIXEL_U1, size, FALSE);
     g_object_unref(size);
     return recovered;
 }
