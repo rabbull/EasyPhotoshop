@@ -13,7 +13,7 @@ G_BEGIN_DECLS
 
 G_DECLARE_DERIVABLE_TYPE(FileIOOutputFormatTable, fileio_output_format_table, FILEIO, OUTPUT_FORMAT_TABLE, GObject)
 
-typedef gboolean (*output_method_t)(CoreImage *image, GString *string);
+typedef gboolean (*output_method_t)(CoreImage *image, char const *string);
 
 struct _FileIOOutputFormatTableClass {
     GObjectClass parent_class;

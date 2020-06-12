@@ -45,9 +45,9 @@ static CoreImage *bmp_load(const char *path);
 
 static void do_bmp_load(char const *path, void **buffer, unsigned *h, unsigned *w);
 
-static gboolean bmp_save(CoreImage *image, GString *path);
+static gboolean bmp_save(CoreImage *image, char const *path);
 
-static gboolean do_bmp_save(char const *path, void *buffer);
+static gboolean do_bmp_save(char const *path, uint8_t const *data, size_t height, size_t width);
 
 void bmp_init(FileIOInputFormatTable *input_table, FileIOOutputFormatTable *output_table) {
     fileio_input_format_table_register(input_table, bmp_load);
@@ -167,13 +167,72 @@ static void do_bmp_load(char const *const path, void **buffer, unsigned *h, unsi
     free(line);
 }
 
-static gboolean bmp_save(CoreImage *image, GString *path) {
+static gboolean bmp_save(CoreImage *image, char const *path) {
     /* TODO: add necessary information to interface */
-    return do_bmp_save(path->str, core_image_get_data(image));
+    gboolean result;
+    gpointer image_data;
+    CoreSize *size;
+    size_t height, width;
+
+    image_data = core_image_get_data(image);
+    size = core_image_get_size(image);
+    height = core_size_get_height(size);
+    width = core_size_get_width(size);
+    result = do_bmp_save(path, image_data, height, width);
+
+    g_object_unref(size);
+    return result;
 }
 
 /* NOTE: return whether succeeded */
-static gboolean do_bmp_save(char const *path, void *buffer) {
-    /* TODO: implement it */
-    return FALSE;
+static gboolean do_bmp_save(char const *path, uint8_t const *data, size_t height, size_t width) {
+    BITMAPFILEHEADER file_header;
+    BITMAPINFOHEADER info_header;
+    FILE *file;
+    uint8_t *output;
+    size_t bfsize = 0;
+    size_t offset = 0;
+    bfsize = height * ((3 * width + 3) / 4 * 4) + 54;
+    output = malloc(bfsize);
+    for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < width; ++j) {
+            output[i * width * 3 + j * 3 + 0 + 54 + offset] = data[(height - i - 1) * width * 3 + j * 3 + 2];
+            output[i * width * 3 + j * 3 + 1 + 54 + offset] = data[(height - i - 1) * width * 3 + j * 3 + 1];
+            output[i * width * 3 + j * 3 + 2 + 54 + offset] = data[(height - i - 1) * width * 3 + j * 3 + 0];
+            if (j == width - 1 && (3 * width) % 4 != 0) {
+                int new_offset = (3 * width + 3) / 4 * 4 - 3 * width;
+                if (new_offset > 0) output[i * width * 3 + j * 3 + 54 + offset + 1] = (uint8_t) 0;
+                if (new_offset > 1) output[i * width * 3 + j * 3 + 54 + offset + 2] = (uint8_t) 0;
+                if (new_offset > 2) output[i * width * 3 + j * 3 + 54 + offset + 3] = (uint8_t) 0;
+
+                offset += new_offset;
+            }
+            if (i == height - 1) bfsize = i * width * 3 + width * 3 + 54 + offset;
+        }
+        file_header.bfType = 0x4D42;
+        file_header.bfReserved1 = 0;
+        file_header.bfReserved2 = 0;
+        file_header.bfSize = bfsize;
+
+        file_header.bfOffBits = 54;
+        info_header.biSize = 40;
+        info_header.biWidth = width;
+        info_header.biHeight = height;
+        info_header.biPlanes = (uint8_t) 1;
+        info_header.biBitCount = (uint8_t) 24;
+        info_header.biCompression = 0;
+        info_header.biSizeImage = bfsize * 8;
+        info_header.biXpelsPerMeter = 0;
+        info_header.biYpelsPerMeter = 0;
+        info_header.biClrUsed = 16777216;
+        info_header.biClrImportant = 0;
+
+    }
+    memcpy((void *) output, &file_header, sizeof(BITMAPFILEHEADER));
+    memcpy((void *) output + 14, &info_header, sizeof(BITMAPINFOHEADER));
+    file = fopen(path, "wb");
+    fwrite(output, bfsize, 1L, file);
+    free(output);
+    fclose(file);
+    return TRUE;
 }

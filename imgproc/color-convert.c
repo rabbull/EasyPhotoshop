@@ -4,6 +4,7 @@
 
 #include <math.h>
 #include <cblas.h>
+#include <stdlib.h>
 #include <imgproc/color-convert.h>
 
 gboolean imgproc_to_HSL(CoreImage *src, CoreImage **dst) {
@@ -231,7 +232,6 @@ gboolean imgproc_to_grayscale(CoreImage *src, CoreImage **dst) {
     return TRUE;
 }
 
-
 gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble threshold, gboolean inverse) {
     CoreImage *gray_src = NULL;
     CoreSize *size;
@@ -263,7 +263,3 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
     g_object_unref(gray_src);
     return TRUE;
 }
-
-gboolean imgproc_to_binary_dither() { return FALSE; }
-
-gboolean imgproc_to_binary_ordered_dither() { return FALSE; }

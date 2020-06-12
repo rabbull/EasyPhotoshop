@@ -92,7 +92,7 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     range = core_pixel_get_range(pixel_type);
     mag_ratio = 255.0 / range;
 
-    pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, core_size_get_width(size), core_size_get_height(size));
+    pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE, 8, width, height);
 
     src_data = core_image_get_data(image);
     dst_data = gdk_pixbuf_get_pixels(pixbuf);

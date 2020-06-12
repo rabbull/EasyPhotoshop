@@ -30,11 +30,43 @@ void dct_drop(GtkWidget *widget, gpointer data);
 
 void idct(GtkWidget *widget, gpointer data);
 
+struct uniform_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void uniform(GtkWidget *widget, gpointer data);
+
+struct dither_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void dither(GtkWidget *widget, gpointer data);
+
+void ordered_dither(GtkWidget *widget, gpointer data);
+
+struct lpc_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void predictive_coding(GtkWidget *widget, gpointer data);
+
+void predictive_decoding(GtkWidget *widget, gpointer data);
+
 struct open_file_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
 };
 
 void open_file(GtkWidget *widget, gpointer data);
+
+struct save_file_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void save_file(GtkWidget *widget, gpointer data);
 
 #endif //EASYPHOTOSHOP_CALLBACKS_H
