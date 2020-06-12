@@ -73,8 +73,11 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     GdkPixbuf *pixbuf;
     gsize i, j, k;
     gsize width, height;
+    gsize area;
     gsize stride;
     gdouble range, mag_ratio;
+    gdouble min, max;
+    gdouble interval;
     CoreColorSpace color_space;
     CorePixelType pixel_type;
     gpointer src_data, dst_data;
@@ -87,6 +90,7 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
     size = core_image_get_size(image);
     width = core_size_get_width(size);
     height = core_size_get_height(size);
+    area = core_size_get_area(size);
     color_space = core_image_get_color_space(image);
     pixel_type = core_image_get_pixel_type(image);
     range = core_pixel_get_range(pixel_type);
@@ -109,6 +113,28 @@ gboolean gui_image_widget_update_image(GuiImageWidget *self, CoreImage *image) {
             __IMAGE_WIDGET_COPY_DATA_C1(gdouble)
         } else if (core_pixel_is_uint8(pixel_type)) {
             __IMAGE_WIDGET_COPY_DATA_C1(guint8)
+        }
+    } else if (color_space == CORE_COLOR_SPACE_MATRIX) {
+        if (core_pixel_is_double(pixel_type)) {
+            min = DBL_MAX;
+            max = DBL_MIN;
+            for (i = 0; i < area; ++i) {
+                if (min > ((gdouble *) src_data)[i]) {
+                    min = ((gdouble *) src_data)[i];
+                }
+                if (max < ((gdouble *) src_data)[i]) {
+                    max = ((gdouble *) src_data)[i];
+                }
+            }
+            interval = (max - min) / 255;
+            for (i = 0; i < height; ++i) {
+                for (j = 0; j < width; ++j) {
+                    for (k = 0; k < 3; ++k) {
+                        ((guint8 *) dst_data)[stride * i + j * 3 + k] =
+                                (((gdouble *) src_data)[i * width + j] - min) / interval;
+                    }
+                }
+            }
         }
     }
 

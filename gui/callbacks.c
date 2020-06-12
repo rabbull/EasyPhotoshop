@@ -11,6 +11,7 @@
 #include <imgproc/histogram-equalization.h>
 #include <imgproc/uniform-quantization.h>
 #include <imgproc/lossless-predictive-coding.h>
+#include <imgproc/discrete-cosine-transform.h>
 
 static char **request_arguments(char const *title, GtkWindow *parent, size_t argc, char const *const *names) {
     char **args = NULL;
@@ -71,14 +72,80 @@ void histeq(GtkWidget *widget, gpointer data) {
 
 void dct(GtkWidget *widget, gpointer data) {
     struct dct_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image, *transformed;
+    long block_size;
+    char const *field_names[] = {"Block Size"};
+    char **requested_arguments;
+
+    requested_arguments = request_arguments("Discrete Cosine Transform", args->parent, 1, field_names);
+    if (requested_arguments == NULL) {
+        return;
+    }
+    block_size = strtol(requested_arguments[0], NULL, 10);
+    free(requested_arguments[0]);
+    free(requested_arguments);
+
+    image = gui_image_widget_get_image(img_widget);
+    transformed = imgproc_discrete_cosine_transform(image, block_size);
+    g_object_unref(image);
+    if (transformed == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, transformed);
+    g_object_unref(transformed);
 }
 
 void dct_drop(GtkWidget *widget, gpointer data) {
     struct dct_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image, *transformed;
+    long block_size;
+    char const *field_names[] = {"Block Size"};
+    char **requested_arguments;
+
+    requested_arguments = request_arguments("Discrete Cosine Transform Drop Half", args->parent, 1, field_names);
+    if (requested_arguments == NULL) {
+        return;
+    }
+    block_size = strtol(requested_arguments[0], NULL, 10);
+    free(requested_arguments[0]);
+    free(requested_arguments);
+
+    image = gui_image_widget_get_image(img_widget);
+    transformed = imgproc_discrete_cosine_transform_drop_half(image, block_size);
+    g_object_unref(image);
+    if (transformed == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, transformed);
+    g_object_unref(transformed);
 }
 
 void idct(GtkWidget *widget, gpointer data) {
     struct dct_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image, *transformed;
+    long block_size;
+    char const *field_names[] = {"Block Size"};
+    char **requested_arguments;
+
+    requested_arguments = request_arguments("Inverse Discrete Cosine Transform", args->parent, 1, field_names);
+    if (requested_arguments == NULL) {
+        return;
+    }
+    block_size = strtol(requested_arguments[0], NULL, 10);
+    free(requested_arguments[0]);
+    free(requested_arguments);
+
+    image = gui_image_widget_get_image(img_widget);
+    transformed = imgproc_inverse_discrete_cosine_transform(image, block_size);
+    g_object_unref(image);
+    if (transformed == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, transformed);
+    g_object_unref(transformed);
 }
 
 void uniform(GtkWidget *widget, gpointer data) {

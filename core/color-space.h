@@ -13,7 +13,7 @@ typedef enum {
     CORE_COLOR_SPACE_RGB = 03,          /* rgb image */
     CORE_COLOR_SPACE_HSL = 013,         /* hsl image */
     CORE_COLOR_SPACE_RGBA = 04,         /* rgba image */
-    CORE_COLOR_SPACE_PLAIN = 021,       /* image that stores plain data */
+    CORE_COLOR_SPACE_MATRIX = 021,       /* image that stores plain data */
 } CoreColorSpace;
 
 guint8 core_color_space_get_channel(CoreColorSpace color_space);

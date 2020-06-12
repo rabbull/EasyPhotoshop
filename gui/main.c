@@ -20,6 +20,9 @@ int gui_main(int argc, char **argv) {
     GtkWidget *button_ilpc;
     GtkWidget *button_open;
     GtkWidget *button_save;
+    GtkWidget *button_dct;
+    GtkWidget *button_idct;
+    GtkWidget *button_dct_drop;
     GuiImageWidget *gui_image_widget;
 
     struct grayscale_args grayscale_args;
@@ -29,6 +32,7 @@ int gui_main(int argc, char **argv) {
     struct save_file_args save_file_args;
     struct uniform_args uniform_args;
     struct dither_args dither_args;
+    struct dct_args dct_args;
 
     gtk_init(&argc, &argv);
 
@@ -85,6 +89,21 @@ int gui_main(int argc, char **argv) {
     button_ilpc = gtk_button_new_with_label("predictive decoding");
     g_signal_connect(G_OBJECT(button_ilpc), "clicked", G_CALLBACK(predictive_decoding), &lpc_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_ilpc));
+
+    /* DISCRETE COSINE TRANSFORM */
+    button_dct = gtk_button_new_with_label("discrete cosine transform");
+    dct_args.parent = GTK_WINDOW(window);
+    dct_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_dct), "clicked", G_CALLBACK(dct), &dct_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_dct));
+
+    button_idct = gtk_button_new_with_label("inverse discrete cosine transform");
+    g_signal_connect(G_OBJECT(button_idct), "clicked", G_CALLBACK(idct), &dct_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_idct));
+
+    button_dct_drop = gtk_button_new_with_label("dct drop half");
+    g_signal_connect(G_OBJECT(button_dct_drop), "clicked", G_CALLBACK(dct_drop), &dct_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_dct_drop));
 
     /* OPEN FILE */
     button_open = gtk_button_new_with_label("open file");

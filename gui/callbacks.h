@@ -21,6 +21,7 @@ struct histeq_args {
 void histeq(GtkWidget *widget, gpointer data);
 
 struct dct_args {
+    GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
 };
 

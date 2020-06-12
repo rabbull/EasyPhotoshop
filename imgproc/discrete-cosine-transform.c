@@ -21,7 +21,7 @@ CoreImage *imgproc_discrete_cosine_transform(CoreImage *image, gint block_bit) {
     CoreImage *dct_image;
     gdouble *dct_data;
     CorePixelType pixel_type;
-    g_return_val_if_fail(CORE_COLOR_SPACE_GRAY_SCALE != core_image_get_color_space(image), NULL);
+    g_return_val_if_fail(CORE_COLOR_SPACE_GRAY_SCALE == core_image_get_color_space(image), NULL);
 
     pixel_type = core_image_get_pixel_type(image);
     size = core_image_get_size(image);
@@ -57,7 +57,7 @@ CoreImage *imgproc_discrete_cosine_transform(CoreImage *image, gint block_bit) {
         free(dct[i]);
     }
     free(dct);
-    dct_image = core_image_new_with_data(dct_data, CORE_COLOR_SPACE_PLAIN, CORE_PIXEL_D1, size, FALSE);
+    dct_image = core_image_new_with_data(dct_data, CORE_COLOR_SPACE_MATRIX, CORE_PIXEL_D1, size, FALSE);
     g_object_unref(size);
     return dct_image;
 
@@ -80,7 +80,7 @@ CoreImage *imgproc_discrete_cosine_transform_drop_half(CoreImage *dct_image, gin
     gdouble *dropped_data_cast;
     int i;
 
-    g_return_val_if_fail(CORE_COLOR_SPACE_PLAIN == core_image_get_color_space(dct_image), NULL);
+    g_return_val_if_fail(CORE_COLOR_SPACE_MATRIX == core_image_get_color_space(dct_image), NULL);
     g_return_val_if_fail(CORE_PIXEL_D1 == core_image_get_pixel_type(dct_image), NULL);
 
     size = core_image_get_size(dct_image);
@@ -98,7 +98,7 @@ CoreImage *imgproc_discrete_cosine_transform_drop_half(CoreImage *dct_image, gin
         free(dropped_data[i]);
     }
     free(dropped_data);
-    dropped = core_image_new_with_data(dropped_data_cast, CORE_COLOR_SPACE_PLAIN, CORE_PIXEL_D1, size, FALSE);
+    dropped = core_image_new_with_data(dropped_data_cast, CORE_COLOR_SPACE_MATRIX, CORE_PIXEL_D1, size, FALSE);
     g_object_unref(size);
     return dropped;
 }
@@ -112,8 +112,8 @@ CoreImage *imgproc_inverse_discrete_cosine_transform(CoreImage *dct_image, gint 
     int length, width;
     int i;
 
-    g_return_val_if_fail(CORE_COLOR_SPACE_PLAIN != core_image_get_color_space(dct_image), NULL);
-    g_return_val_if_fail(CORE_PIXEL_D1 != core_image_get_pixel_type(dct_image), NULL);
+    g_return_val_if_fail(CORE_COLOR_SPACE_MATRIX == core_image_get_color_space(dct_image), NULL);
+    g_return_val_if_fail(CORE_PIXEL_D1 == core_image_get_pixel_type(dct_image), NULL);
 
     size = core_image_get_size(dct_image);
     length = core_size_get_height(size);
