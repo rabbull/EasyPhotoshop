@@ -178,6 +178,36 @@ void uniform(GtkWidget *widget, gpointer data) {
     g_object_unref(uniformed);
 }
 
+
+void threshold(GtkWidget *widget, gpointer data) {
+    struct threshold_args *args = data;
+    GuiImageWidget *img_widget = args->gui_image_widget;
+    CoreImage *image = gui_image_widget_get_image(img_widget);
+    CoreImage *binarized = NULL;
+    guint threshold;
+    char const *field_names[] = {"Threshold"};
+    char **fields;
+
+    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+        goto fail;
+    }
+    fields = request_additional("Binarize", args->parent, 1, field_names);
+    if (fields == NULL) {
+        goto fail;
+    }
+    threshold = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
+    imgproc_to_binary_threshold(image, &binarized, threshold, FALSE);
+    if (binarized == NULL) {
+        goto fail;
+    }
+    gui_image_widget_update_image(img_widget, binarized);
+    g_object_unref(binarized);
+
+    fail:
+    g_object_unref(image);
+}
+
 void dither(GtkWidget *widget, gpointer data) {
     struct dither_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;

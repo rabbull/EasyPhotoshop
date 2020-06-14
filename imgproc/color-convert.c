@@ -236,8 +236,8 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
     CoreImage *gray_src = NULL;
     CoreSize *size;
     gsize i, area;
-    gdouble *src_data, *dst_data;
-    CoreColorSpace color_space;
+    gpointer *src_data;
+    gdouble *dst_data;
     CorePixelType pixel_type;
     g_return_val_if_fail(src != NULL, FALSE);
     g_return_val_if_fail(dst != NULL, FALSE);
@@ -247,17 +247,27 @@ gboolean imgproc_to_binary_threshold(CoreImage *src, CoreImage **dst, gdouble th
     } else {
         gray_src = g_object_ref(src);
     }
+    pixel_type = core_image_get_pixel_type(src);
     size = core_image_get_size(gray_src);
     area = core_size_get_area(size);
     src_data = core_image_get_data(gray_src);
     dst_data = g_malloc(sizeof(gdouble) * area);
-    for (i = 0; i < area; ++i) {
-        dst_data[i] = ((unsigned) (src_data[i] > threshold) ^ (unsigned) inverse) * 255.0;
+
+    if (pixel_type == CORE_PIXEL_U1) {
+        for (i = 0; i < area; ++i) {
+            dst_data[i] = ((unsigned) (((guint8 *) src_data)[i] > threshold) ^ (unsigned) inverse);
+        }
+    } else if (pixel_type == CORE_PIXEL_D1) {
+        for (i = 0; i < area; ++i) {
+            dst_data[i] = ((unsigned) (((gdouble *) src_data)[i] > threshold) ^ (unsigned) inverse);
+        }
+    } else {
+        return FALSE;
     }
     if (*dst == NULL) {
-        core_image_new_with_data(dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_U1, size, FALSE);
+        *dst = core_image_new_with_data(dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_D1, size, FALSE);
     } else {
-        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_U1, size, FALSE);
+        core_image_assign_data(*dst, dst_data, CORE_COLOR_SPACE_BIN, CORE_PIXEL_D1, size, FALSE);
     }
     g_object_unref(size);
     g_object_unref(gray_src);

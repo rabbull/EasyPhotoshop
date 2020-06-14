@@ -13,6 +13,7 @@ int gui_main(int argc, char **argv) {
     GtkWidget *window, *box_main, *box_buttons;
     GtkWidget *button_histeq;
     GtkWidget *button_grayscale;
+    GtkWidget *button_threshold;
     GtkWidget *button_dither;
     GtkWidget *button_uniform;
     GtkWidget *button_ordered_dither;
@@ -31,6 +32,7 @@ int gui_main(int argc, char **argv) {
     struct open_file_args open_file_args;
     struct save_file_args save_file_args;
     struct uniform_args uniform_args;
+    struct threshold_args threshold_args;
     struct dither_args dither_args;
     struct dct_args dct_args;
 
@@ -67,6 +69,13 @@ int gui_main(int argc, char **argv) {
     uniform_args.gui_image_widget = gui_image_widget;
     g_signal_connect(G_OBJECT(button_uniform), "clicked", G_CALLBACK(uniform), &uniform_args);
     gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_uniform));
+
+    /* BINARIZING WITH THRESHOLD */
+    button_threshold = gtk_button_new_with_label("threshold");
+    threshold_args.parent = GTK_WINDOW(window);
+    threshold_args.gui_image_widget = gui_image_widget;
+    g_signal_connect(G_OBJECT(button_threshold), "clicked", G_CALLBACK(threshold), &threshold_args);
+    gtk_container_add(GTK_CONTAINER(box_buttons), GTK_WIDGET(button_threshold));
 
     /* DITHERING */
     button_dither = gtk_button_new_with_label("dithering");

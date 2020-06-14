@@ -38,6 +38,13 @@ struct uniform_args {
 
 void uniform(GtkWidget *widget, gpointer data);
 
+struct threshold_args {
+    GtkWindow *parent;
+    GuiImageWidget *gui_image_widget;
+};
+
+void threshold(GtkWidget *widget, gpointer data);
+
 struct dither_args {
     GtkWindow *parent;
     GuiImageWidget *gui_image_widget;
