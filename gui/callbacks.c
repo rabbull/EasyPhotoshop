@@ -13,7 +13,7 @@
 #include <imgproc/lossless-predictive-coding.h>
 #include <imgproc/discrete-cosine-transform.h>
 
-static char **request_arguments(char const *title, GtkWindow *parent, size_t argc, char const *const *names) {
+static char **request_additional(char const *title, GtkWindow *parent, size_t argc, char const *const *names) {
     char **args = NULL;
     char const *arg = NULL;
     size_t i;
@@ -52,6 +52,14 @@ static char **request_arguments(char const *title, GtkWindow *parent, size_t arg
     return args;
 }
 
+static void free_additional(char **arguments, size_t argc) {
+    int i;
+    for (i = 0; i < argc; ++i) {
+        free(arguments[i]);
+    }
+    free(arguments);
+}
+
 void grayscale(GtkWidget *widget, gpointer data) {
     struct grayscale_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
@@ -76,15 +84,14 @@ void dct(GtkWidget *widget, gpointer data) {
     CoreImage *image, *transformed;
     long block_size;
     char const *field_names[] = {"Block Size"};
-    char **requested_arguments;
+    char **fields;
 
-    requested_arguments = request_arguments("Discrete Cosine Transform", args->parent, 1, field_names);
-    if (requested_arguments == NULL) {
+    fields = request_additional("Discrete Cosine Transform", args->parent, 1, field_names);
+    if (fields == NULL) {
         return;
     }
-    block_size = strtol(requested_arguments[0], NULL, 10);
-    free(requested_arguments[0]);
-    free(requested_arguments);
+    block_size = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
 
     image = gui_image_widget_get_image(img_widget);
     transformed = imgproc_discrete_cosine_transform(image, block_size);
@@ -102,15 +109,14 @@ void dct_drop(GtkWidget *widget, gpointer data) {
     CoreImage *image, *dropped;
     long block_size;
     char const *field_names[] = {"Block Size"};
-    char **requested_arguments;
+    char **fields;
 
-    requested_arguments = request_arguments("Discrete Cosine Transform Drop Half", args->parent, 1, field_names);
-    if (requested_arguments == NULL) {
+    fields = request_additional("Discrete Cosine Transform Drop Half", args->parent, 1, field_names);
+    if (fields == NULL) {
         return;
     }
-    block_size = strtol(requested_arguments[0], NULL, 10);
-    free(requested_arguments[0]);
-    free(requested_arguments);
+    block_size = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
 
     image = gui_image_widget_get_image(img_widget);
     dropped = imgproc_discrete_cosine_transform_drop_half(image, block_size);
@@ -128,15 +134,14 @@ void idct(GtkWidget *widget, gpointer data) {
     CoreImage *image, *recovered;
     long block_size;
     char const *field_names[] = {"Block Size"};
-    char **requested_arguments;
+    char **fields;
 
-    requested_arguments = request_arguments("Inverse Discrete Cosine Transform", args->parent, 1, field_names);
-    if (requested_arguments == NULL) {
+    fields = request_additional("Inverse Discrete Cosine Transform", args->parent, 1, field_names);
+    if (fields == NULL) {
         return;
     }
-    block_size = strtol(requested_arguments[0], NULL, 10);
-    free(requested_arguments[0]);
-    free(requested_arguments);
+    block_size = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
 
     image = gui_image_widget_get_image(img_widget);
     recovered = imgproc_inverse_discrete_cosine_transform(image, block_size);
@@ -152,9 +157,25 @@ void uniform(GtkWidget *widget, gpointer data) {
     struct uniform_args *args = data;
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
-    CoreImage *uniformed_image;
-    uniformed_image = imgproc_uniform_quantization(image, 100);
-    gui_image_widget_update_image(img_widget, uniformed_image);
+    CoreImage *uniformed;
+    long ratio;
+    char const *field_names[] = {"Ratio"};
+    char **fields;
+
+    fields = request_additional("Uniform Quantization", args->parent, 1, field_names);
+    if (fields == NULL) {
+        return;
+    }
+    ratio = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
+
+    uniformed = imgproc_uniform_quantization(image, ratio);
+    g_object_unref(image);
+    if (uniformed == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, uniformed);
+    g_object_unref(uniformed);
 }
 
 void dither(GtkWidget *widget, gpointer data) {
@@ -162,19 +183,25 @@ void dither(GtkWidget *widget, gpointer data) {
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     CoreImage *dithered = NULL;
-    char const *argument_names[] = {"Rank"};
-    char **requested_arguments;
+    guint rank;
+    char const *field_names[] = {"Rank"};
+    char **fields;
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         return;
     }
-    requested_arguments = request_arguments("Dither", args->parent, 1, argument_names);
-    if (requested_arguments == NULL) {
+    fields = request_additional("Dither", args->parent, 1, field_names);
+    if (fields == NULL) {
         return;
     }
-    guint rank = strtol(requested_arguments[0], NULL, 10);
+    rank = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
     dithered = imgproc_to_binary_dither(image, rank, 0);
-    gui_image_widget_update_image(img_widget, dithered);
     g_object_unref(image);
+    if (dithered == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, dithered);
+    g_object_unref(dithered);
 }
 
 void ordered_dither(GtkWidget *widget, gpointer data) {
@@ -182,22 +209,24 @@ void ordered_dither(GtkWidget *widget, gpointer data) {
     GuiImageWidget *img_widget = args->gui_image_widget;
     CoreImage *image = gui_image_widget_get_image(img_widget);
     CoreImage *dithered = NULL;
+    char const *field_names[] = {"Rank"};
+    char **fields;
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         return;
     }
-    char const *argument_names[] = {"Rank"};
-    char **requested_arguments;
-    if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
+    fields = request_additional("Ordered Dither", args->parent, 1, field_names);
+    if (fields == NULL) {
         return;
     }
-    requested_arguments = request_arguments("Dither", args->parent, 1, argument_names);
-    if (requested_arguments == NULL) {
-        return;
-    }
-    guint rank = strtol(requested_arguments[0], NULL, 10);
+    guint rank = strtol(fields[0], NULL, 10);
+    free_additional(fields, 1);
     dithered = imgproc_to_binary_dither(image, rank, 1);
-    gui_image_widget_update_image(img_widget, dithered);
     g_object_unref(image);
+    if (dithered == NULL) {
+        return;
+    }
+    gui_image_widget_update_image(img_widget, dithered);
+    g_object_unref(dithered);
 }
 
 void predictive_coding(GtkWidget *widget, gpointer data) {
@@ -209,22 +238,21 @@ void predictive_coding(GtkWidget *widget, gpointer data) {
     gdouble *coef = NULL;
     gdouble sum;
     char *cursor = NULL;
-    char const *additional_argument_names[] = {"Rank", "Coefficients"};
-    char **additional_arguments = NULL;
+    char const *field_names[] = {"Rank", "Coefficients (separated by space)"};
+    char **fields = NULL;
     guint32 i;
 
     if (core_image_get_color_space(image) != CORE_COLOR_SPACE_GRAY_SCALE) {
         goto fail;
     }
 
-    additional_arguments = request_arguments("Predictive Coding", args->parent, 2,
-                                             additional_argument_names);
-    if (additional_arguments == NULL) {
+    fields = request_additional("Predictive Coding", args->parent, 2, field_names);
+    if (fields == NULL) {
         goto fail;
     }
 
-    rank = strtol(additional_arguments[0], NULL, 10);
-    cursor = additional_arguments[1];
+    rank = strtol(fields[0], NULL, 10);
+    cursor = fields[1];
     coef = malloc(sizeof(gdouble) * rank);
     sum = 0;
     for (i = 0; i < rank; ++i) {
@@ -237,27 +265,21 @@ void predictive_coding(GtkWidget *widget, gpointer data) {
         }
         sum += coef[i];
     }
+    /* sum of all coefs should be 1 */
     if (sum < 1 - 3 * DBL_EPSILON || sum >= 1 + 3 * DBL_EPSILON) {
         goto fail;
     }
     coded_image = imgproc_predictive_coding(image, rank, coef);
-    gui_image_widget_update_image(img_widget, coded_image);
     g_object_unref(image);
+    if (coded_image == NULL) {
+        goto fail;
+    }
+    gui_image_widget_update_image(img_widget, coded_image);
     g_object_unref(coded_image);
 
-    for (i = 0; i < 2; ++i) {
-        free(additional_arguments[i]);
-    }
-    free(additional_arguments);
-    free(coef);
-    return;
-
     fail:
-    if (additional_arguments) {
-        for (i = 0; i < 2; ++i) {
-            free(additional_arguments[i]);
-        }
-        free(additional_arguments);
+    if (fields) {
+        free_additional(fields, 2);
     }
     free(coef);
 }
@@ -279,8 +301,8 @@ void predictive_decoding(GtkWidget *widget, gpointer data) {
         goto fail;
     }
 
-    additional_arguments = request_arguments("Predictive Decoding", args->parent, 2,
-                                             additional_argument_names);
+    additional_arguments = request_additional("Predictive Decoding", args->parent, 2,
+                                              additional_argument_names);
     if (additional_arguments == NULL) {
         goto fail;
     }
@@ -338,8 +360,8 @@ void open_file(GtkWidget *widget, gpointer data) {
     gtk_file_filter_set_name(filter, "bmp");
     gtk_file_filter_add_pattern(filter, "*.bmp");
     gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
-    if (gtk_dialog_run(GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT) {
-        selected_file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER (dialog));
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        selected_file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
         filename = g_file_get_path(selected_file);
         image = core_image_new_open(filename);
         gui_image_widget_update_image(args->gui_image_widget, image);
@@ -360,7 +382,9 @@ void save_file(GtkWidget *widget, gpointer data) {
 
     if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
         file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-        core_image_save(gui_image_widget_get_image(img_widget), file, CORE_IMAGE_SAVE_METHOD_BMP);
+        if (!core_image_save(gui_image_widget_get_image(img_widget), file, CORE_IMAGE_SAVE_METHOD_BMP)) {
+            g_printerr("Failed to save!\n");
+        }
     }
     gtk_widget_destroy(dialog);
 }
